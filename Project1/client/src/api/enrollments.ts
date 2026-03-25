@@ -1,5 +1,5 @@
 import api from './client';
-import type { ApiResponse } from '../types';
+import type { ApiResponse, EnrollmentWithProgress } from '../types';
 
 export const enrollmentsApi = {
   enroll: (courseId: string) =>
@@ -9,4 +9,7 @@ export const enrollmentsApi = {
     api.get<ApiResponse<{ isEnrolled: boolean; enrolledAt: string | null }>>(
       `/enrollments/me/${courseId}`,
     ),
+
+  getMyEnrollments: () =>
+    api.get<ApiResponse<EnrollmentWithProgress[]>>('/enrollments/me'),
 };

@@ -46,6 +46,19 @@ export interface CourseDetail extends Course {
   sections: Section[];
 }
 
+export interface EpisodeDetail {
+  _id: string;
+  title: string;
+  videoUrl: string;
+  duration: number;
+  order: number;
+  section: {
+    _id: string;
+    title: string;
+    order: number;
+  };
+}
+
 export interface Enrollment {
   _id: string;
   enrolledAt: string;
