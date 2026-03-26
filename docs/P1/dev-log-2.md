@@ -5,11 +5,11 @@
 | 항목 | 내용 |
 |------|------|
 | 작성일 | 2026-03-26 |
-| 기간 | 2026-03-23 ~ 2026-03-24 |
+| 기간 | 2026-03-23 ~ 2026-03-26 |
 
 ---
 
-2주차·3주차에 완성한 백엔드 API를 기반으로 프론트엔드 기초 세팅과 핵심 페이지를 구현했다. Vite + React 19 + Tailwind CSS v4.1 환경을 구성하고, 인증·강의 목록·강의 상세까지 백엔드 연동을 완료했다.
+백엔드 API를 기반으로 프론트엔드 전체를 구현했다. Vite + React 19 + Tailwind CSS v4.1 환경을 구성하고, 인증·강의 목록·강의 상세·강의 플레이어·내 강의실·마이페이지까지 MVP의 모든 화면을 백엔드와 연동 완료했다.
 
 ---
 
@@ -39,7 +39,7 @@ Header(네비게이션, 로그인 상태에 따라 버튼 분기), Footer, Layou
 
 ---
 
-### Week 5 (3/24) — 인증 페이지 및 강의 목록/상세 페이지
+### Week 5 (3/24~3/25) — 핵심 페이지 전체 구현
 
 **로그인 / 회원가입 페이지**
 React Hook Form + Zod로 클라이언트 측 유효성 검사 적용. TanStack Query `useMutation`으로 API 호출 상태(로딩·에러) 관리. 성공 시 Zustand 스토어에 토큰·유저 저장 후 홈으로 리다이렉트.
@@ -52,10 +52,26 @@ React Hook Form + Zod로 클라이언트 측 유효성 검사 적용. TanStack Q
 
 **강의 상세 페이지** (`/courses/:courseId`)
 - `GET /api/v1/courses/:courseId`로 섹션·에피소드 포함 상세 정보 조회
-- `GET /api/v1/enrollments/me/:courseId`로 수강 여부 확인 후 버튼 상태 분기(무료 수강 신청 / 수강 중)
-- `POST /api/v1/enrollments` 수강 신청 성공 시 `invalidateQueries`로 수강 상태 즉시 반영
-- 섹션별 에피소드 목록과 재생 시간(mm:ss) 표시
+- `GET /api/v1/enrollments/me/:courseId`로 수강 여부 확인 후 버튼 상태 분기
+- 수강 신청 성공 시 `invalidateQueries`로 상태 즉시 갱신
 - 미로그인 상태에서 수강 신청 시 `/login`으로 리다이렉트
+
+**강의 플레이어 페이지** (`/courses/:courseId/episodes/:episodeId`)
+- `ProtectedRoute`로 미인증 접근 차단
+- YouTube iframe embed(`enablejsapi=1`) + postMessage로 영상 종료 시 에피소드 완료 처리 자동화
+- 우측 사이드바에 섹션/에피소드 목록 표시. 완료 에피소드 `✓` 마킹
+- 진도율 바 표시. 다음 강의 이동 버튼 제공
+- 플레이어 페이지는 Header/Footer 없는 전체화면 레이아웃 적용
+
+**내 강의실 페이지** (`/my-courses`)
+- `GET /api/v1/enrollments/me`로 수강 강의 목록 조회
+- 강의별 진도 바(완료 강 수 / 전체 강 수, 퍼센트) 표시
+- 마지막 시청 에피소드가 있으면 이어보기, 없으면 시작하기 버튼 표시
+
+**마이페이지** (`/mypage`)
+- `GET /api/v1/users/me`로 프로필 조회 후 폼에 기본값 주입
+- `PATCH /api/v1/users/me`로 이름 수정. 성공 시 Zustand 스토어의 유저 정보도 갱신
+- `PATCH /api/v1/users/me/password`로 비밀번호 변경. 새 비밀번호 확인 일치 검증(Zod refine)
 
 ---
 
@@ -63,11 +79,11 @@ React Hook Form + Zod로 클라이언트 측 유효성 검사 적용. TanStack Q
 
 | 항목 | 내용 |
 |------|------|
-| 강의 플레이어 | YouTube iframe 임베드, 에피소드 사이드바, 진도 API 연동 미구현 |
-| 내 강의실 | 수강 강의 목록 및 진도율 표시 페이지 미구현 |
-| 마이페이지 | 프로필 수정, 비밀번호 변경 폼 미구현 |
+| 홈 페이지 | 추천 강의 노출 등 콘텐츠 미구성 |
 | 반응형 UI | 모바일 레이아웃 검수 미완료 |
-| Protected Route | 인증 필요 페이지 접근 제어 미적용 |
+| API 테스트 | Thunder Client / Postman 컬렉션 미작성 |
+| 에러 핸들링 | 전역 Exception Filter 미적용 → BE 에러 응답 형식 불일관 가능성 |
+| 배포 | Vercel(FE) / Railway(BE) 배포 미완료 |
 
 ---
 
@@ -79,5 +95,5 @@ React Hook Form + Zod로 클라이언트 측 유효성 검사 적용. TanStack Q
 | Week 2 | 백엔드 기초 | 완료 |
 | Week 3 | 백엔드 기능 API | 완료 |
 | Week 4 | 프론트엔드 기초 | 완료 |
-| Week 5 | 프론트엔드 핵심 기능 | 인증·강의 목록·상세 완료 / 플레이어·내 강의실 미완 |
+| Week 5 | 프론트엔드 핵심 기능 | 완료 |
 | Week 6 | 마무리 및 제출 | 미시작 |
