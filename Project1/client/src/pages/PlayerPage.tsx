@@ -119,9 +119,9 @@ export function PlayerPage() {
         <div className="relative w-full bg-black" style={{ paddingTop: '56.25%' }}>
           <iframe
             className="absolute inset-0 w-full h-full"
-            src={`https://www.youtube.com/embed/${episode.videoUrl}?enablejsapi=1&autoplay=1&rel=0`}
+            src={`https://www.youtube.com/embed/${episode.videoUrl}?enablejsapi=1&rel=0&modestbranding=1`}
             title={episode.title}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowFullScreen
           />
         </div>

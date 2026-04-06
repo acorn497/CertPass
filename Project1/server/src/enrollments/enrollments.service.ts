@@ -49,22 +49,31 @@ export class EnrollmentsService {
 
     const result = await Promise.all(
       enrollments.map(async (e) => {
+        const courseDoc = e.course_id as any;
+        const courseId = courseDoc?._id ?? e.course_id;
+
         const totalCount = await this.episodeModel.countDocuments({
-          course_id: e.course_id,
+          course_id: courseId,
         });
         const completedCount = await this.progressModel.countDocuments({
           user_id: userId,
-          course_id: e.course_id,
+          course_id: courseId,
           isCompleted: true,
         });
         const lastProgress = await this.progressModel
-          .findOne({ user_id: userId, course_id: e.course_id, isCompleted: true })
+          .findOne({ user_id: userId, course_id: courseId, isCompleted: true })
           .sort({ watchedAt: -1 })
           .lean();
 
         return {
           enrollment: { _id: e._id, enrolledAt: e.enrolledAt },
-          course: e.course_id,
+          course: {
+            _id: courseDoc?._id,
+            title: courseDoc?.title,
+            thumbnail: courseDoc?.thumbnail ?? null,
+            instructor: courseDoc?.instructor,
+            examName: courseDoc?.examName,
+          },
           progress: {
             completedCount,
             totalCount,

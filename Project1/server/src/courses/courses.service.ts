@@ -79,7 +79,7 @@ export class CoursesService {
     if (!course) throw new NotFoundException('강의를 찾을 수 없습니다');
 
     const sections = await this.sectionModel
-      .find({ course_id: courseId })
+      .find({ course_id: course._id })
       .sort({ order: 1 })
       .lean();
 
