@@ -17,7 +17,7 @@ export class AuthController {
   async register(@Body() body: unknown) {
     const result = RegisterSchema.safeParse(body);
     if (!result.success) {
-      throw new BadRequestException(result.error.errors[0].message);
+      throw new BadRequestException(result.error.issues[0].message);
     }
     const data = await this.authService.register(result.data);
     return { success: true, data };
@@ -28,7 +28,7 @@ export class AuthController {
   async login(@Body() body: unknown) {
     const result = LoginSchema.safeParse(body);
     if (!result.success) {
-      throw new BadRequestException(result.error.errors[0].message);
+      throw new BadRequestException(result.error.issues[0].message);
     }
     const data = await this.authService.login(result.data);
     return { success: true, data };

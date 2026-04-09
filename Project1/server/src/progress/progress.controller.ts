@@ -41,7 +41,7 @@ export class ProgressController {
   ) {
     const result = CompleteEpisodeSchema.safeParse(body);
     if (!result.success) {
-      throw new BadRequestException(result.error.errors[0].message);
+      throw new BadRequestException(result.error.issues[0].message);
     }
     const data = await this.progressService.completeEpisode(
       user.userId,

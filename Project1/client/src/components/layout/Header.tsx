@@ -1,47 +1,60 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
+
+function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
+  const { pathname } = useLocation();
+  const active = pathname === to;
+  return (
+    <Link
+      to={to}
+      className={`text-sm font-medium transition ${
+        active
+          ? 'text-indigo-600'
+          : 'text-slate-600 hover:text-indigo-600'
+      }`}
+    >
+      {children}
+    </Link>
+  );
+}
 
 export function Header() {
   const { user, logout } = useAuthStore();
 
   return (
-    <header className="bg-white border-b border-gray-200">
+    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/" className="text-xl font-bold text-blue-600">
+        <Link to="/" className="text-lg font-bold text-slate-900 hover:text-indigo-600 transition">
           CertPass
         </Link>
 
-        <nav className="flex items-center gap-6">
-          <Link to="/courses" className="text-gray-600 hover:text-gray-900 transition">
-            강의 목록
-          </Link>
+        <nav className="flex items-center gap-5">
+          <NavLink to="/courses">강의 탐색</NavLink>
 
           {user ? (
             <>
-              <Link to="/my-courses" className="text-gray-600 hover:text-gray-900 transition">
-                내 강의실
-              </Link>
-              <Link to="/mypage" className="text-gray-600 hover:text-gray-900 transition">
-                마이페이지
-              </Link>
+              <NavLink to="/my-courses">내 강의실</NavLink>
+              <NavLink to="/mypage">마이페이지</NavLink>
+              <div className="w-px h-5 bg-slate-200" />
               <button
                 onClick={logout}
-                className="text-gray-500 hover:text-gray-700 transition text-sm"
+                className="text-sm text-slate-400 hover:text-slate-600 transition"
               >
                 로그아웃
               </button>
             </>
           ) : (
             <>
+              <div className="w-px h-5 bg-slate-200" />
               <Link
                 to="/login"
-                className="text-gray-600 hover:text-gray-900 transition"
+                className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition"
               >
                 로그인
               </Link>
               <Link
                 to="/register"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition"
+                className="text-sm font-medium bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition shadow-sm"
               >
                 회원가입
               </Link>

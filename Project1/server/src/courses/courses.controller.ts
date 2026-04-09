@@ -11,12 +11,14 @@ export class CoursesController {
     @Query('limit') limit?: string,
     @Query('category') category?: string,
     @Query('level') level?: string,
+    @Query('q') q?: string,
   ) {
     const data = await this.coursesService.findAll({
       page: page ? Number(page) : 1,
       limit: limit ? Number(limit) : 12,
       category,
       level,
+      q,
     });
     return { success: true, data };
   }

@@ -29,7 +29,7 @@ export class UsersController {
   ) {
     const result = UpdateProfileSchema.safeParse(body);
     if (!result.success) {
-      throw new BadRequestException(result.error.errors[0].message);
+      throw new BadRequestException(result.error.issues[0].message);
     }
     const data = await this.usersService.updateProfile(user.userId, result.data);
     return { success: true, data };
@@ -42,7 +42,7 @@ export class UsersController {
   ) {
     const result = ChangePasswordSchema.safeParse(body);
     if (!result.success) {
-      throw new BadRequestException(result.error.errors[0].message);
+      throw new BadRequestException(result.error.issues[0].message);
     }
     const data = await this.usersService.changePassword(user.userId, result.data);
     return { success: true, data };

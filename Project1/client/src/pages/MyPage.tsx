@@ -78,28 +78,30 @@ export function MyPage() {
     onError: () => setPasswordMsg('현재 비밀번호가 올바르지 않습니다.'),
   });
 
+  const inputClass = "w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition";
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-bold text-gray-900 mb-8">마이페이지</h1>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">마이페이지</h1>
+        <p className="text-slate-500 text-sm">프로필 정보를 관리하세요</p>
+      </div>
 
       {/* 프로필 수정 */}
-      <section className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">프로필 수정</h2>
+      <section className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 mb-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-slate-900 mb-5">프로필 수정</h2>
 
         <div className="mb-4">
-          <label className="block text-sm text-gray-600 mb-1">이메일</label>
-          <p className="text-gray-800">{user?.email}</p>
+          <label className="block text-sm text-slate-500 mb-1">이메일</label>
+          <p className="text-slate-800 font-medium">{user?.email}</p>
         </div>
 
         <form onSubmit={handleProfile((d) => updateProfile(d))} className="flex flex-col gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">이름</label>
-            <input
-              {...regProfile('name')}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">이름</label>
+            <input {...regProfile('name')} className={inputClass} />
             {profileErrors.name && (
-              <p className="text-red-500 text-xs mt-1">{profileErrors.name.message}</p>
+              <p className="text-red-500 text-xs mt-1.5">{profileErrors.name.message}</p>
             )}
           </div>
 
@@ -107,7 +109,7 @@ export function MyPage() {
             <button
               type="submit"
               disabled={profilePending}
-              className="px-5 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+              className="px-5 py-2.5 bg-indigo-600 text-white text-sm rounded-xl hover:bg-indigo-700 transition disabled:opacity-50 font-medium shadow-sm"
             >
               {profilePending ? '저장 중...' : '저장'}
             </button>
@@ -119,8 +121,8 @@ export function MyPage() {
       </section>
 
       {/* 비밀번호 변경 */}
-      <section className="bg-white border border-gray-200 rounded-xl p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">비밀번호 변경</h2>
+      <section className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+        <h2 className="text-lg font-semibold text-slate-900 mb-5">비밀번호 변경</h2>
 
         <form onSubmit={handlePassword((d) => changePassword(d))} className="flex flex-col gap-4">
           {[
@@ -129,13 +131,13 @@ export function MyPage() {
             { id: 'confirmPassword', label: '새 비밀번호 확인', error: passwordErrors.confirmPassword },
           ].map(({ id, label, error }) => (
             <div key={id}>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">{label}</label>
               <input
                 type="password"
                 {...regPassword(id as keyof PasswordForm)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={inputClass}
               />
-              {error && <p className="text-red-500 text-xs mt-1">{error.message}</p>}
+              {error && <p className="text-red-500 text-xs mt-1.5">{error.message}</p>}
             </div>
           ))}
 
@@ -143,7 +145,7 @@ export function MyPage() {
             <button
               type="submit"
               disabled={passwordPending}
-              className="px-5 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+              className="px-5 py-2.5 bg-indigo-600 text-white text-sm rounded-xl hover:bg-indigo-700 transition disabled:opacity-50 font-medium shadow-sm"
             >
               {passwordPending ? '변경 중...' : '비밀번호 변경'}
             </button>

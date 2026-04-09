@@ -78,7 +78,8 @@ async function seed() {
     {
       title: '정보처리기사 완벽 대비 올인원',
       description: '필기부터 실기까지 한 번에 끝내는 정보처리기사 강의. 기출문제 분석과 핵심 이론을 체계적으로 학습하세요.',
-      thumbnail: 'https://placehold.co/640x360/3B82F6/white?text=IPC',
+      thumbnail:
+        'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=450&fit=crop&auto=format&q=80',
       instructor: '김정보',
       category_id: itCategory._id,
       examName: '정보처리기사',
@@ -90,7 +91,8 @@ async function seed() {
     {
       title: '정보보안기사 핵심 요약',
       description: '정보보안기사 합격을 위한 핵심 이론 및 기출 풀이 강의',
-      thumbnail: 'https://placehold.co/640x360/EF4444/white?text=Security',
+      thumbnail:
+        'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=450&fit=crop&auto=format&q=80',
       instructor: '이보안',
       category_id: itCategory._id,
       examName: '정보보안기사',
@@ -102,7 +104,8 @@ async function seed() {
     {
       title: '토익 900점 달성 전략',
       description: 'RC/LC 파트별 공략법과 실전 모의고사로 토익 900점을 목표로',
-      thumbnail: 'https://placehold.co/640x360/10B981/white?text=TOEIC',
+      thumbnail:
+        'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&h=450&fit=crop&auto=format&q=80',
       instructor: '박영어',
       category_id: languageCategory._id,
       examName: '토익',
@@ -114,7 +117,8 @@ async function seed() {
     {
       title: '공인중개사 1차 핵심 강의',
       description: '공인중개사 1차 시험 부동산학개론 및 민법 핵심 정리',
-      thumbnail: 'https://placehold.co/640x360/F59E0B/white?text=Estate',
+      thumbnail:
+        'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&h=450&fit=crop&auto=format&q=80',
       instructor: '최공인',
       category_id: categories.find((c) => c.slug === 'construction')!._id,
       examName: '공인중개사',
@@ -126,7 +130,8 @@ async function seed() {
     {
       title: '재무관리사 합격 전략',
       description: '재무관리사 시험 대비 핵심 이론 및 문제 풀이',
-      thumbnail: 'https://placehold.co/640x360/8B5CF6/white?text=Finance',
+      thumbnail:
+        'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=450&fit=crop&auto=format&q=80',
       instructor: '정재무',
       category_id: financeCategory._id,
       examName: '재무관리사',
@@ -153,38 +158,38 @@ async function seed() {
   const sectionEpisodes: { title: string; videoUrl: string; duration: number }[][] = [
     // 1과목. 소프트웨어 설계
     [
-      { title: '1-1. 소프트웨어 생명주기 모델', videoUrl: 'UfQFuLzR3F8', duration: 712 },
-      { title: '1-2. 애자일 방법론', videoUrl: 'uxNBqzDB2CQ', duration: 634 },
-      { title: '1-3. UML 다이어그램 개요', videoUrl: 'VI3tBAlDWEk', duration: 890 },
-      { title: '1-4. 디자인 패턴 기초', videoUrl: 'vNHpsC5ng_E', duration: 754 },
+      { title: '1-1. 소프트웨어 생명주기 모델', videoUrl: 'dQw4w9WgXcQ', duration: 212 },
+      { title: '1-2. 애자일 방법론', videoUrl: '9bZkp7q19f0', duration: 253 },
+      { title: '1-3. UML 다이어그램 개요', videoUrl: 'kJQP7kiw5Fk', duration: 278 },
+      { title: '1-4. 디자인 패턴 기초', videoUrl: 'JGwWNGJdvx8', duration: 252 },
     ],
     // 2과목. 소프트웨어 개발
     [
-      { title: '2-1. 데이터 입출력 구현', videoUrl: 'nLRL_NcnK-4', duration: 682 },
-      { title: '2-2. 통합 구현 및 인터페이스', videoUrl: 'E5GgKfKMlrA', duration: 740 },
-      { title: '2-3. 제품 소프트웨어 패키징', videoUrl: 'zSgiXGELjbc', duration: 615 },
-      { title: '2-4. 애플리케이션 테스트', videoUrl: 'JTjvNGE4oXo', duration: 820 },
+      { title: '2-1. 데이터 입출력 구현', videoUrl: 'RgKAFK5djSk', duration: 263 },
+      { title: '2-2. 통합 구현 및 인터페이스', videoUrl: 'OPf0YbXqDm0', duration: 235 },
+      { title: '2-3. 제품 소프트웨어 패키징', videoUrl: 'fJ9rUzIMcZQ', duration: 271 },
+      { title: '2-4. 애플리케이션 테스트', videoUrl: 'CevxZvSJLk8', duration: 229 },
     ],
     // 3과목. 데이터베이스 구축
     [
-      { title: '3-1. 관계형 데이터베이스 개요', videoUrl: 'h0j0QN2b3oI', duration: 930 },
-      { title: '3-2. SQL 기본 문법', videoUrl: 'pB6T4MBDIDc', duration: 1020 },
-      { title: '3-3. 정규화 이론', videoUrl: 'GFQaEYEc8_8', duration: 870 },
-      { title: '3-4. 트랜잭션과 동시성 제어', videoUrl: 'e9PC0sroCzc', duration: 760 },
+      { title: '3-1. 관계형 데이터베이스 개요', videoUrl: 'hT_nvWreIhg', duration: 233 },
+      { title: '3-2. SQL 기본 문법', videoUrl: 'YQHsXMglC9A', duration: 379 },
+      { title: '3-3. 정규화 이론', videoUrl: 'lp-EO5I60KA', duration: 247 },
+      { title: '3-4. 트랜잭션과 동시성 제어', videoUrl: '60ItHLz5WEA', duration: 231 },
     ],
     // 4과목. 프로그래밍 언어 활용
     [
-      { title: '4-1. C언어 기초 문법', videoUrl: 'KJgsSFOSQv0', duration: 1140 },
-      { title: '4-2. Java 객체지향 개념', videoUrl: 'grEKMHGYyns', duration: 980 },
-      { title: '4-3. Python 기초', videoUrl: 'rfscVS0vtbw', duration: 860 },
-      { title: '4-4. 운영체제 기본 개념', videoUrl: 'dOv7Ya4sXac', duration: 720 },
+      { title: '4-1. C언어 기초 문법', videoUrl: 'bo_efYhYU2A', duration: 211 },
+      { title: '4-2. Java 객체지향 개념', videoUrl: 'HP-MbfHFUqs', duration: 215 },
+      { title: '4-3. Python 기초', videoUrl: 'y6120QOlsfU', duration: 340 },
+      { title: '4-4. 운영체제 기본 개념', videoUrl: 'pRpeEdMmmQ0', duration: 215 },
     ],
     // 5과목. 정보시스템 구축관리
     [
-      { title: '5-1. 소프트웨어 개발 보안', videoUrl: 'inWWhr5tnEA', duration: 840 },
-      { title: '5-2. 암호화 알고리즘', videoUrl: 'AQDCe585Lnc', duration: 910 },
-      { title: '5-3. 네트워크 기본 개념', videoUrl: 'qiQR5rTSshw', duration: 1080 },
-      { title: '5-4. IT 프로젝트 정보시스템 관리', videoUrl: 'QjEyiqo-Y0k', duration: 670 },
+      { title: '5-1. 소프트웨어 개발 보안', videoUrl: 'KMlJBEGALpI', duration: 357 },
+      { title: '5-2. 암호화 알고리즘', videoUrl: 'DK_0jXPuIr0', duration: 189 },
+      { title: '5-3. 네트워크 기본 개념', videoUrl: 'jNQXAC9IVRw', duration: 19 },
+      { title: '5-4. IT 프로젝트 정보시스템 관리', videoUrl: 'ktvTqknDobU', duration: 251 },
     ],
   ];
 

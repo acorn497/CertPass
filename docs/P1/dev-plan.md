@@ -105,22 +105,22 @@ learnhub/
 - [x] 강의 CRUD API 구현
 - [x] 수강 신청 API 구현
 - [x] 진도 저장/조회 API 구현
-- [ ] API 테스트 (Postman / Thunder Client)
+- [x] API 테스트 (Postman / Thunder Client)
 
 ### Week 4 — 프론트엔드 기초
-- [ ] React 프로젝트 세팅 (Vite + Tailwind + React Router)
-- [ ] 공통 레이아웃 / 컴포넌트 구현 (Header, Footer, Button, Card)
-- [ ] 회원가입 / 로그인 페이지 구현
-- [ ] Axios 인스턴스 및 React Query 설정
+- [x] React 프로젝트 세팅 (Vite + Tailwind + React Router)
+- [x] 공통 레이아웃 / 컴포넌트 구현 (Header, Footer, Button, Card)
+- [x] 회원가입 / 로그인 페이지 구현
+- [x] Axios 인스턴스 및 React Query 설정
 
 ### Week 5 — 프론트엔드 핵심 기능
-- [ ] 강의 목록 / 상세 페이지 구현
-- [ ] 수강 신청 기능 연동
-- [ ] 내 강의실 페이지 구현
-- [ ] 강의 플레이어 페이지 구현 (진도 저장 연동)
+- [x] 강의 목록 / 상세 페이지 구현
+- [x] 수강 신청 기능 연동
+- [x] 내 강의실 페이지 구현
+- [x] 강의 플레이어 페이지 구현 (진도 저장 연동)
 
 ### Week 6 — 마무리 및 제출
-- [ ] 마이페이지 구현
+- [x] 마이페이지 구현
 - [ ] 반응형 UI 검수
 - [ ] 통합 테스트 및 버그 수정
 - [ ] 배포 및 최종 제출

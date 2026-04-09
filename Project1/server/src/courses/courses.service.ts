@@ -6,6 +6,10 @@ import { Section, SectionDocument } from '../schemas/section.schema';
 import { Episode, EpisodeDocument } from '../schemas/episode.schema';
 import { Category, CategoryDocument } from '../schemas/category.schema';
 
+function escapeRegex(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 @Injectable()
 export class CoursesService {
   constructor(
@@ -20,6 +24,7 @@ export class CoursesService {
     limit?: number;
     category?: string;
     level?: string;
+    q?: string;
   }) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 12;
@@ -34,6 +39,17 @@ export class CoursesService {
 
     if (query.level) {
       filter.level = query.level;
+    }
+
+    const keyword = query.q?.trim();
+    if (keyword) {
+      const safe = escapeRegex(keyword);
+      filter.$or = [
+        { title: { $regex: safe, $options: 'i' } },
+        { description: { $regex: safe, $options: 'i' } },
+        { instructor: { $regex: safe, $options: 'i' } },
+        { examName: { $regex: safe, $options: 'i' } },
+      ];
     }
 
     const [courses, total] = await Promise.all([

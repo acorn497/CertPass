@@ -14,8 +14,8 @@ const levelLabel: Record<string, string> = {
 export function CourseCard({ course }: Props) {
   return (
     <Link to={`/courses/${course._id}`} className="block group">
-      <div className="bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition">
-        <div className="aspect-video bg-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300">
+        <div className="aspect-video bg-slate-100 overflow-hidden">
           {course.thumbnail ? (
             <img
               src={course.thumbnail}
@@ -23,29 +23,26 @@ export function CourseCard({ course }: Props) {
               className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-400">
+            <div className="w-full h-full flex items-center justify-center text-slate-400">
               No Image
             </div>
           )}
         </div>
         <div className="p-4">
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-indigo-50 text-indigo-600 px-2.5 py-0.5 rounded-full font-medium">
               {course.category?.name ?? '전체'}
             </span>
-            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+            <span className="text-xs bg-slate-100 text-slate-500 px-2.5 py-0.5 rounded-full font-medium">
               {levelLabel[course.level] ?? course.level}
             </span>
           </div>
-          <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2">
+          <h3 className="font-semibold text-slate-900 mb-1 line-clamp-2 group-hover:text-indigo-600 transition">
             {course.title}
           </h3>
-          <p className="text-sm text-gray-500">{course.instructor}</p>
-          <div className="mt-2 flex items-center justify-between">
-            <span className="text-sm text-gray-400">
-              {course.examName}
-            </span>
-            <span className="font-bold text-blue-600">무료</span>
+          <p className="text-sm text-slate-500">{course.instructor}</p>
+          <div className="mt-3 flex items-center pt-3 border-t border-slate-100">
+            <span className="text-xs text-slate-400">{course.examName}</span>
           </div>
         </div>
       </div>

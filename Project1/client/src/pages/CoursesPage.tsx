@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { coursesApi } from '../api/courses';
 import { CourseCard } from '../components/course/CourseCard';
@@ -6,6 +6,17 @@ import { CourseCard } from '../components/course/CourseCard';
 export function CoursesPage() {
   const [page, setPage] = useState(1);
   const [category, setCategory] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [debouncedQ, setDebouncedQ] = useState('');
+
+  useEffect(() => {
+    const id = window.setTimeout(() => setDebouncedQ(searchInput.trim()), 350);
+    return () => window.clearTimeout(id);
+  }, [searchInput]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedQ]);
 
   const { data: categoriesData } = useQuery({
     queryKey: ['categories'],
@@ -13,16 +24,38 @@ export function CoursesPage() {
   });
 
   const { data, isLoading } = useQuery({
-    queryKey: ['courses', page, category],
+    queryKey: ['courses', page, category, debouncedQ],
     queryFn: () =>
       coursesApi
-        .getAll({ page, limit: 12, category: category || undefined })
+        .getAll({
+          page,
+          limit: 12,
+          category: category || undefined,
+          q: debouncedQ || undefined,
+        })
         .then((r) => r.data.data),
   });
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">강의 목록</h1>
+    <div className="max-w-6xl mx-auto px-4 py-10">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-slate-900 mb-2">강의 탐색</h1>
+        <p className="text-slate-500">관심 있는 자격증 강의를 찾아보세요</p>
+      </div>
+
+      <div className="mb-8 max-w-xl">
+        <label htmlFor="course-search" className="sr-only">
+          강의 검색
+        </label>
+        <input
+          id="course-search"
+          type="search"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="강의명, 설명, 강사, 시험명으로 검색"
+          className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+        />
+      </div>
 
       {/* 카테고리 필터 */}
       <div className="flex flex-wrap gap-2 mb-8">
@@ -30,8 +63,8 @@ export function CoursesPage() {
           onClick={() => { setCategory(''); setPage(1); }}
           className={`px-4 py-2 rounded-full text-sm font-medium transition ${
             category === ''
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              ? 'bg-indigo-600 text-white shadow-sm'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
         >
           전체
@@ -42,8 +75,8 @@ export function CoursesPage() {
             onClick={() => { setCategory(cat.slug); setPage(1); }}
             className={`px-4 py-2 rounded-full text-sm font-medium transition ${
               category === cat.slug
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? 'bg-indigo-600 text-white shadow-sm'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
             {cat.name}
@@ -53,9 +86,11 @@ export function CoursesPage() {
 
       {/* 강의 그리드 */}
       {isLoading ? (
-        <div className="text-center py-20 text-gray-400">불러오는 중...</div>
+        <div className="text-center py-20 text-slate-400">불러오는 중...</div>
       ) : data?.courses.length === 0 ? (
-        <div className="text-center py-20 text-gray-400">등록된 강의가 없습니다</div>
+        <div className="text-center py-20 text-slate-400">
+          {debouncedQ ? '검색 결과가 없습니다.' : '등록된 강의가 없습니다.'}
+        </div>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -66,11 +101,11 @@ export function CoursesPage() {
 
           {/* 페이지네이션 */}
           {data && data.pagination.totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2 mt-10">
+            <div className="flex justify-center items-center gap-2 mt-12">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="px-3 py-1.5 rounded border border-gray-300 text-sm disabled:opacity-40 hover:bg-gray-50 transition"
+                className="px-3 py-1.5 rounded-lg border border-slate-200 text-sm text-slate-600 disabled:opacity-40 hover:bg-slate-50 transition"
               >
                 이전
               </button>
@@ -79,10 +114,10 @@ export function CoursesPage() {
                   <button
                     key={p}
                     onClick={() => setPage(p)}
-                    className={`px-3 py-1.5 rounded text-sm transition ${
+                    className={`w-9 h-9 rounded-lg text-sm font-medium transition ${
                       p === page
-                        ? 'bg-blue-600 text-white'
-                        : 'border border-gray-300 hover:bg-gray-50'
+                        ? 'bg-indigo-600 text-white'
+                        : 'border border-slate-200 text-slate-600 hover:bg-slate-50'
                     }`}
                   >
                     {p}
@@ -92,7 +127,7 @@ export function CoursesPage() {
               <button
                 onClick={() => setPage((p) => Math.min(data.pagination.totalPages, p + 1))}
                 disabled={page >= data.pagination.totalPages}
-                className="px-3 py-1.5 rounded border border-gray-300 text-sm disabled:opacity-40 hover:bg-gray-50 transition"
+                className="px-3 py-1.5 rounded-lg border border-slate-200 text-sm text-slate-600 disabled:opacity-40 hover:bg-slate-50 transition"
               >
                 다음
               </button>

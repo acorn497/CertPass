@@ -30,16 +30,21 @@ export class EpisodesController {
     @Param('episodeId') episodeId: string,
     @CurrentUser() user: { userId: string },
   ) {
+    const { Types } = await import('mongoose');
+    const userOid = new Types.ObjectId(user.userId);
+    const courseOid = new Types.ObjectId(courseId);
+    const episodeOid = new Types.ObjectId(episodeId);
+
     const enrollment = await this.enrollmentModel.findOne({
-      user_id: user.userId,
-      course_id: courseId,
+      user_id: userOid,
+      course_id: courseOid,
     });
     if (!enrollment) {
       throw new ForbiddenException('수강 신청 후 시청할 수 있습니다');
     }
 
     const episode = await this.episodeModel
-      .findOne({ _id: episodeId, course_id: courseId })
+      .findOne({ _id: episodeOid, course_id: courseOid })
       .lean();
     if (!episode) throw new NotFoundException('에피소드를 찾을 수 없습니다');
 

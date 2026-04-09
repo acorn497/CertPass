@@ -28,7 +28,7 @@ export class EnrollmentsController {
   ) {
     const result = EnrollSchema.safeParse(body);
     if (!result.success) {
-      throw new BadRequestException(result.error.errors[0].message);
+      throw new BadRequestException(result.error.issues[0].message);
     }
     const data = await this.enrollmentsService.enroll(
       user.userId,
