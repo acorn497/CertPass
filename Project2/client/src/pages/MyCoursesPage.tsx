@@ -3,12 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import { enrollmentsApi } from '../api/enrollments';
 
 export function MyCoursesPage() {
-  const { data, isLoading } = useQuery({
+  const { data: enrollments = [], isLoading } = useQuery({
     queryKey: ['my-enrollments'],
-    queryFn: () => enrollmentsApi.getMyEnrollments(),
+    queryFn: () => enrollmentsApi.getMyEnrollments().then((r) => r.data.data),
   });
-
-  const enrollments = data?.data?.data ?? [];
 
   if (isLoading) {
     return (
