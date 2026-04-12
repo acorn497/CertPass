@@ -27,7 +27,10 @@ export class AuthService {
       name: dto.name,
     });
 
-    const token = this.generateToken(user.id, user.email);
+    const accessToken = this.generateAccessToken(user.id, user.email);
+    const refreshToken = this.generateRefreshToken(user.id);
+    const hashedRefresh = await bcrypt.hash(refreshToken, 10);
+    await this.userModel.findByIdAndUpdate(user.id, { refreshToken: hashedRefresh });
 
     return {
       user: {
@@ -36,7 +39,8 @@ export class AuthService {
         name: user.name,
         role: user.role,
       },
-      token,
+      token: accessToken,
+      refreshToken,
     };
   }
 
@@ -51,7 +55,10 @@ export class AuthService {
       throw new UnauthorizedException('이메일 또는 비밀번호가 올바르지 않습니다');
     }
 
-    const token = this.generateToken(user.id, user.email);
+    const accessToken = this.generateAccessToken(user.id, user.email);
+    const refreshToken = this.generateRefreshToken(user.id);
+    const hashedRefresh = await bcrypt.hash(refreshToken, 10);
+    await this.userModel.findByIdAndUpdate(user.id, { refreshToken: hashedRefresh });
 
     return {
       user: {
@@ -60,15 +67,54 @@ export class AuthService {
         name: user.name,
         role: user.role,
       },
-      token,
+      token: accessToken,
+      refreshToken,
     };
   }
 
-  private generateToken(userId: string, email: string): string {
+  async refresh(refreshToken: string) {
+    let payload: { sub: string };
+    try {
+      payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as { sub: string };
+    } catch {
+      throw new UnauthorizedException('Refresh Token이 유효하지 않습니다');
+    }
+
+    const user = await this.userModel.findById(payload.sub);
+    if (!user || !user.refreshToken) {
+      throw new UnauthorizedException('Refresh Token이 유효하지 않습니다');
+    }
+
+    const isMatch = await bcrypt.compare(refreshToken, user.refreshToken);
+    if (!isMatch) {
+      throw new UnauthorizedException('Refresh Token이 유효하지 않습니다');
+    }
+
+    const newAccessToken = this.generateAccessToken(user.id, user.email);
+    const newRefreshToken = this.generateRefreshToken(user.id);
+    const hashedRefresh = await bcrypt.hash(newRefreshToken, 10);
+    await this.userModel.findByIdAndUpdate(user.id, { refreshToken: hashedRefresh });
+
+    return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+  }
+
+  async logout(userId: string) {
+    await this.userModel.findByIdAndUpdate(userId, { refreshToken: null });
+  }
+
+  private generateAccessToken(userId: string, email: string): string {
     return jwt.sign(
       { sub: userId, email },
       process.env.JWT_SECRET!,
-      { expiresIn: process.env.JWT_EXPIRES_IN ?? '1h' } as jwt.SignOptions,
+      { expiresIn: process.env.JWT_EXPIRES_IN ?? '15m' } as jwt.SignOptions,
+    );
+  }
+
+  private generateRefreshToken(userId: string): string {
+    return jwt.sign(
+      { sub: userId },
+      process.env.JWT_REFRESH_SECRET!,
+      { expiresIn: '7d' } as jwt.SignOptions,
     );
   }
 }
