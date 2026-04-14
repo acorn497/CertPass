@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
+import { authApi } from '../../api/auth';
 
 function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
   const { pathname } = useLocation();
@@ -21,6 +22,16 @@ function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
 export function Header() {
   const { user, logout } = useAuthStore();
 
+  const handleLogout = async () => {
+    try {
+      await authApi.logout();
+    } catch {
+      // 서버 오류와 무관하게 클라이언트 로그아웃 진행
+    } finally {
+      logout();
+    }
+  };
+
   return (
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -37,7 +48,7 @@ export function Header() {
               <NavLink to="/mypage">마이페이지</NavLink>
               <div className="w-px h-5 bg-slate-200" />
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 className="text-sm text-slate-400 hover:text-slate-600 transition"
               >
                 로그아웃

@@ -12,4 +12,10 @@ export const authApi = {
 
   login: (data: { email: string; password: string }) =>
     api.post<ApiResponse<AuthResponse>>('/auth/login', data),
+
+  logout: () =>
+    api.post<ApiResponse<{ message: string }>>('/auth/logout'),
+
+  refresh: () =>
+    api.post<ApiResponse<{ token: string }>>('/auth/refresh'),
 };
