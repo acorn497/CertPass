@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { USER_ROLES } from '../common/roles.decorator';
+import type { UserRole } from '../common/roles.decorator';
 
 export type UserDocument = User & Document;
 
@@ -14,8 +16,8 @@ export class User {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ default: 'student' })
-  role: string;
+  @Prop({ default: 'student', enum: USER_ROLES })
+  role: UserRole;
 
   @Prop({ default: null })
   profileImage: string;

@@ -5,7 +5,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-import { Request } from 'express';
+import type { Request } from 'express';
+
+export interface AuthenticatedUser {
+  userId: string;
+  email: string;
+}
 
 @Injectable()
 export class JwtGuard implements CanActivate {
