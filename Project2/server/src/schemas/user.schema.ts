@@ -10,8 +10,8 @@ export class User {
   @Prop({ required: true, unique: true, lowercase: true })
   email: string;
 
-  @Prop({ required: true })
-  password: string;
+  @Prop({ default: null })
+  password: string | null;
 
   @Prop({ required: true })
   name: string;
@@ -24,6 +24,18 @@ export class User {
 
   @Prop({ default: null })
   refreshToken: string | null;
+
+  @Prop({ default: false })
+  isEmailVerified: boolean;
+
+  @Prop({ default: null })
+  emailVerifyToken: string | null;
+
+  @Prop({ default: null })
+  oauthProvider: string | null;
+
+  @Prop({ default: null })
+  oauthId: string | null;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

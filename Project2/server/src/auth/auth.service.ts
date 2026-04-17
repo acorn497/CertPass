@@ -2,11 +2,13 @@ import {
   ConflictException,
   Injectable,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
+import * as crypto from 'crypto';
 import { User, UserDocument } from '../schemas/user.schema';
 import { RegisterDto, LoginDto } from './auth.dto';
 
@@ -21,10 +23,12 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const emailVerifyToken = crypto.randomBytes(24).toString('hex');
     const user = await this.userModel.create({
       email: dto.email,
       password: hashedPassword,
       name: dto.name,
+      emailVerifyToken,
     });
 
     const accessToken = this.generateAccessToken(user.id, user.email);
@@ -38,9 +42,11 @@ export class AuthService {
         email: user.email,
         name: user.name,
         role: user.role,
+        isEmailVerified: user.isEmailVerified,
       },
       token: accessToken,
       refreshToken,
+      emailVerifyToken,
     };
   }
 
@@ -48,6 +54,10 @@ export class AuthService {
     const user = await this.userModel.findOne({ email: dto.email });
     if (!user) {
       throw new UnauthorizedException('이메일 또는 비밀번호가 올바르지 않습니다');
+    }
+
+    if (!user.password) {
+      throw new UnauthorizedException('소셜 로그인 계정입니다');
     }
 
     const isMatch = await bcrypt.compare(dto.password, user.password);
@@ -66,6 +76,62 @@ export class AuthService {
         email: user.email,
         name: user.name,
         role: user.role,
+        isEmailVerified: user.isEmailVerified,
+      },
+      token: accessToken,
+      refreshToken,
+    };
+  }
+
+  async verifyEmail(token: string) {
+    const user = await this.userModel.findOneAndUpdate(
+      { emailVerifyToken: token },
+      { isEmailVerified: true, emailVerifyToken: null },
+      { new: true },
+    );
+    if (!user) throw new BadRequestException('유효하지 않은 인증 토큰입니다');
+    return { message: '이메일 인증이 완료되었습니다.' };
+  }
+
+  async googleLogin(profile: { oauthId: string; email: string; name: string }) {
+    let user = await this.userModel.findOne({
+      oauthProvider: 'google',
+      oauthId: profile.oauthId,
+    });
+
+    if (!user) {
+      user = await this.userModel.findOne({ email: profile.email });
+    }
+
+    if (!user) {
+      user = await this.userModel.create({
+        email: profile.email,
+        name: profile.name,
+        password: null,
+        oauthProvider: 'google',
+        oauthId: profile.oauthId,
+        isEmailVerified: true,
+      });
+    } else if (!user.oauthProvider) {
+      await this.userModel.findByIdAndUpdate(user.id, {
+        oauthProvider: 'google',
+        oauthId: profile.oauthId,
+        isEmailVerified: true,
+      });
+    }
+
+    const accessToken = this.generateAccessToken(user.id, user.email);
+    const refreshToken = this.generateRefreshToken(user.id);
+    const hashedRefresh = await bcrypt.hash(refreshToken, 10);
+    await this.userModel.findByIdAndUpdate(user.id, { refreshToken: hashedRefresh });
+
+    return {
+      user: {
+        _id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        isEmailVerified: true,
       },
       token: accessToken,
       refreshToken,

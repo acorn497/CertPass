@@ -34,6 +34,9 @@ export class UsersService {
   async changePassword(userId: string, dto: ChangePasswordDto) {
     const user = await this.userModel.findById(userId);
     if (!user) throw new NotFoundException('사용자를 찾을 수 없습니다');
+    if (!user.password) {
+      throw new UnauthorizedException('소셜 로그인 계정은 비밀번호를 변경할 수 없습니다');
+    }
 
     const isMatch = await bcrypt.compare(dto.currentPassword, user.password);
     if (!isMatch) {

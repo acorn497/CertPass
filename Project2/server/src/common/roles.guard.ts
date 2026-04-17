@@ -33,7 +33,8 @@ export class RolesGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<{
       user?: AuthenticatedUser;
     }>();
-    const userId = request.user?.userId;
+    const authUser = request.user;
+    const userId = authUser?.userId;
 
     if (!userId) {
       throw new UnauthorizedException('인증이 필요합니다');
@@ -48,6 +49,11 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException('접근 권한이 없습니다');
     }
 
+    request.user = {
+      userId,
+      email: authUser.email,
+      role: user.role,
+    };
     return true;
   }
 }

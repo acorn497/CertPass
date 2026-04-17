@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
+import * as bcrypt from 'bcrypt';
 
 dotenv.config({ path: path.join(__dirname, '../../.env') });
 
@@ -10,16 +11,32 @@ const CategorySchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+const UserSchema = new mongoose.Schema({
+  email: String,
+  password: String,
+  name: String,
+  role: String,
+  isEmailVerified: Boolean,
+  refreshToken: { type: String, default: null },
+  emailVerifyToken: { type: String, default: null },
+  oauthProvider: { type: String, default: null },
+  oauthId: { type: String, default: null },
+}, { timestamps: true });
+
 const CourseSchema = new mongoose.Schema({
   title: String,
   description: String,
   thumbnail: String,
   instructor: String,
+  instructor_id: mongoose.Schema.Types.ObjectId,
   category_id: mongoose.Schema.Types.ObjectId,
   examName: String,
   level: String,
   price: { type: Number, default: 0 },
   isPublished: { type: Boolean, default: true },
+  status: { type: String, default: 'approved' },
+  avgRating: { type: Number, default: 0 },
+  reviewCount: { type: Number, default: 0 },
   totalDuration: Number,
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
@@ -42,10 +59,31 @@ const EpisodeSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+const ExamSchema = new mongoose.Schema({
+  course_id: mongoose.Schema.Types.ObjectId,
+  title: String,
+  description: String,
+  timeLimit: Number,
+  createdAt: { type: Date, default: Date.now },
+});
+
+const QuestionSchema = new mongoose.Schema({
+  exam_id: mongoose.Schema.Types.ObjectId,
+  content: String,
+  options: [String],
+  answer: Number,
+  explanation: String,
+  order: Number,
+  createdAt: { type: Date, default: Date.now },
+});
+
+const UserModel = mongoose.model('User', UserSchema);
 const CategoryModel = mongoose.model('Category', CategorySchema);
 const CourseModel = mongoose.model('Course', CourseSchema);
 const SectionModel = mongoose.model('Section', SectionSchema);
 const EpisodeModel = mongoose.model('Episode', EpisodeSchema);
+const ExamModel = mongoose.model('Exam', ExamSchema);
+const QuestionModel = mongoose.model('Question', QuestionSchema);
 
 async function seed() {
   await mongoose.connect(process.env.MONGODB_URI!);
@@ -57,6 +95,34 @@ async function seed() {
     CourseModel.deleteMany({}),
     SectionModel.deleteMany({}),
     EpisodeModel.deleteMany({}),
+    UserModel.deleteMany({}),
+    ExamModel.deleteMany({}),
+    QuestionModel.deleteMany({}),
+  ]);
+
+  const password = await bcrypt.hash('password123', 10);
+  const [admin, instructor, student] = await UserModel.insertMany([
+    {
+      email: 'admin@certpass.test',
+      password,
+      name: '관리자',
+      role: 'admin',
+      isEmailVerified: true,
+    },
+    {
+      email: 'instructor@certpass.test',
+      password,
+      name: '김정보',
+      role: 'instructor',
+      isEmailVerified: true,
+    },
+    {
+      email: 'student@certpass.test',
+      password,
+      name: '수강생',
+      role: 'student',
+      isEmailVerified: true,
+    },
   ]);
 
   // 카테고리 생성
@@ -81,11 +147,13 @@ async function seed() {
       thumbnail:
         'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=450&fit=crop&auto=format&q=80',
       instructor: '김정보',
+      instructor_id: instructor._id,
       category_id: itCategory._id,
       examName: '정보처리기사',
       level: 'beginner',
       price: 0,
       isPublished: true,
+      status: 'approved',
       totalDuration: 72000,
     },
     {
@@ -94,11 +162,13 @@ async function seed() {
       thumbnail:
         'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=450&fit=crop&auto=format&q=80',
       instructor: '이보안',
+      instructor_id: instructor._id,
       category_id: itCategory._id,
       examName: '정보보안기사',
       level: 'intermediate',
       price: 0,
       isPublished: true,
+      status: 'approved',
       totalDuration: 54000,
     },
     {
@@ -107,11 +177,13 @@ async function seed() {
       thumbnail:
         'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&h=450&fit=crop&auto=format&q=80',
       instructor: '박영어',
+      instructor_id: instructor._id,
       category_id: languageCategory._id,
       examName: '토익',
       level: 'intermediate',
       price: 0,
       isPublished: true,
+      status: 'approved',
       totalDuration: 43200,
     },
     {
@@ -120,11 +192,13 @@ async function seed() {
       thumbnail:
         'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&h=450&fit=crop&auto=format&q=80',
       instructor: '최공인',
+      instructor_id: instructor._id,
       category_id: categories.find((c) => c.slug === 'construction')!._id,
       examName: '공인중개사',
       level: 'beginner',
       price: 0,
       isPublished: true,
+      status: 'approved',
       totalDuration: 64800,
     },
     {
@@ -133,11 +207,13 @@ async function seed() {
       thumbnail:
         'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=450&fit=crop&auto=format&q=80',
       instructor: '정재무',
+      instructor_id: instructor._id,
       category_id: financeCategory._id,
       examName: '재무관리사',
       level: 'beginner',
       price: 0,
       isPublished: true,
+      status: 'approved',
       totalDuration: 36000,
     },
   ]);
@@ -208,11 +284,39 @@ async function seed() {
 
   await EpisodeModel.insertMany(episodeData);
 
+  const exam = await ExamModel.create({
+    course_id: ipcCourse._id,
+    title: '정보처리기사 1회 모의고사',
+    description: 'P2 샘플 모의고사',
+    timeLimit: 30,
+  });
+
+  await QuestionModel.insertMany([
+    {
+      exam_id: exam._id,
+      content: '소프트웨어 생명주기 모델에 해당하는 것은?',
+      options: ['폭포수 모델', '정규화', '인덱싱', '라우팅'],
+      answer: 0,
+      explanation: '폭포수 모델은 대표적인 소프트웨어 생명주기 모델입니다.',
+      order: 1,
+    },
+    {
+      exam_id: exam._id,
+      content: '관계형 데이터베이스에서 중복을 줄이는 설계 과정은?',
+      options: ['컴파일', '정규화', '렌더링', '배포'],
+      answer: 1,
+      explanation: '정규화는 데이터 중복과 이상 현상을 줄이는 설계 과정입니다.',
+      order: 2,
+    },
+  ]);
+
   console.log('✅ 시드 완료');
+  console.log(`  사용자: ${[admin, instructor, student].length}개`);
   console.log(`  카테고리: ${categories.length}개`);
   console.log(`  강의: ${courses.length}개`);
   console.log(`  섹션: ${sections.length}개`);
   console.log(`  에피소드: ${episodeData.length}개`);
+  console.log('  로그인: admin@certpass.test / instructor@certpass.test / student@certpass.test (password123)');
 
   await mongoose.disconnect();
 }

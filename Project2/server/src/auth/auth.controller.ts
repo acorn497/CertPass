@@ -1,7 +1,9 @@
 import {
   Controller,
   Post,
+  Get,
   Body,
+  Query,
   HttpCode,
   HttpStatus,
   BadRequestException,
@@ -36,9 +38,16 @@ export class AuthController {
       throw new BadRequestException(result.error.issues[0].message);
     }
     const data = await this.authService.register(result.data);
-    const { refreshToken, ...rest } = data;
+    const { refreshToken, emailVerifyToken, ...rest } = data;
     res.cookie(REFRESH_COOKIE, refreshToken, COOKIE_OPTIONS);
-    return { success: true, data: rest };
+    return {
+      success: true,
+      data: {
+        ...rest,
+        message: '인증 이메일이 발송되었습니다.',
+        devVerifyUrl: `/api/v1/auth/verify-email?token=${emailVerifyToken}`,
+      },
+    };
   }
 
   @Post('login')
@@ -76,5 +85,59 @@ export class AuthController {
     await this.authService.logout(user.userId);
     res.clearCookie(REFRESH_COOKIE, { path: '/api/v1/auth' });
     return { success: true, data: { message: '로그아웃되었습니다.' } };
+  }
+
+  @Get('verify-email')
+  async verifyEmail(@Query('token') token?: string) {
+    if (!token) throw new BadRequestException('인증 토큰이 필요합니다');
+    const data = await this.authService.verifyEmail(token);
+    return { success: true, data };
+  }
+
+  @Get('google')
+  async google() {
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const redirectUri =
+      process.env.GOOGLE_REDIRECT_URI ??
+      'http://localhost:3000/api/v1/auth/google/callback';
+
+    if (!clientId) {
+      return {
+        success: true,
+        data: {
+          message: 'GOOGLE_CLIENT_ID가 없어서 개발용 콜백을 사용하세요.',
+          devCallback:
+            '/api/v1/auth/google/callback?email=google@example.com&name=Google%20User&sub=dev-google-user',
+        },
+      };
+    }
+
+    const url = new URL('https://accounts.google.com/o/oauth2/v2/auth');
+    url.searchParams.set('client_id', clientId);
+    url.searchParams.set('redirect_uri', redirectUri);
+    url.searchParams.set('response_type', 'code');
+    url.searchParams.set('scope', 'openid email profile');
+    url.searchParams.set('state', Math.random().toString(36).slice(2));
+    return { success: true, data: { url: url.toString() } };
+  }
+
+  @Get('google/callback')
+  async googleCallback(
+    @Query('sub') sub: string | undefined,
+    @Query('email') email: string | undefined,
+    @Query('name') name: string | undefined,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    if (!sub || !email || !name) {
+      throw new BadRequestException('개발용 콜백에는 sub, email, name이 필요합니다');
+    }
+    const data = await this.authService.googleLogin({
+      oauthId: sub,
+      email,
+      name,
+    });
+    const { refreshToken, ...rest } = data;
+    res.cookie(REFRESH_COOKIE, refreshToken, COOKIE_OPTIONS);
+    return { success: true, data: rest };
   }
 }

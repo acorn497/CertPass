@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -10,6 +11,7 @@ import { Enrollment, EnrollmentDocument } from '../schemas/enrollment.schema';
 import { Course, CourseDocument } from '../schemas/course.schema';
 import { Episode, EpisodeDocument } from '../schemas/episode.schema';
 import { Progress, ProgressDocument } from '../schemas/progress.schema';
+import { User, UserDocument } from '../schemas/user.schema';
 
 interface PopulatedCourse {
   _id: Types.ObjectId;
@@ -50,11 +52,18 @@ export class EnrollmentsService {
     private episodeModel: Model<EpisodeDocument>,
     @InjectModel(Progress.name)
     private progressModel: Model<ProgressDocument>,
+    @InjectModel(User.name)
+    private userModel: Model<UserDocument>,
   ) {}
 
   async enroll(userId: string, courseId: string) {
     const userOid = new Types.ObjectId(userId);
     const courseOid = new Types.ObjectId(courseId);
+
+    const user = await this.userModel.findById(userOid).select('isEmailVerified');
+    if (!user?.isEmailVerified) {
+      throw new ForbiddenException('이메일 인증 후 수강 신청할 수 있습니다');
+    }
 
     // 강의 존재 여부 확인
     const courseExists = await this.courseModel.exists({ _id: courseOid });
