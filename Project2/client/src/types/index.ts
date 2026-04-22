@@ -4,6 +4,7 @@ export interface User {
   name: string;
   role: string;
   profileImage: string | null;
+  isEmailVerified?: boolean;
   createdAt: string;
 }
 
@@ -25,6 +26,10 @@ export interface Course {
   price: number;
   totalDuration: number;
   episodeCount?: number;
+  status?: 'pending' | 'approved' | 'rejected';
+  avgRating?: number;
+  reviewCount?: number;
+  enrollmentCount?: number;
 }
 
 export interface Section {
@@ -86,4 +91,45 @@ export interface ApiResponse<T> {
   success: boolean;
   data: T;
   message?: string;
+}
+
+export interface Review {
+  _id: string;
+  user?: Pick<User, '_id' | 'name' | 'role'>;
+  rating: number;
+  content: string;
+  createdAt: string;
+}
+
+export interface QnaPost {
+  _id: string;
+  user?: Pick<User, '_id' | 'name' | 'role'>;
+  title: string;
+  content: string;
+  isResolved: boolean;
+  createdAt: string;
+  comments?: QnaComment[];
+}
+
+export interface QnaComment {
+  _id: string;
+  user?: Pick<User, '_id' | 'name' | 'role'>;
+  content: string;
+  isInstructor: boolean;
+  createdAt: string;
+}
+
+export interface Exam {
+  _id: string;
+  title: string;
+  description?: string;
+  timeLimit: number | null;
+  questionCount?: number;
+}
+
+export interface ExamQuestion {
+  _id: string;
+  content: string;
+  options: string[];
+  order: number;
 }

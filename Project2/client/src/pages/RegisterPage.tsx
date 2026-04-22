@@ -31,8 +31,11 @@ export function RegisterPage() {
     mutationFn: (data: { email: string; password: string; name: string }) =>
       authApi.register(data),
     onSuccess: (res) => {
-      const { token, user } = res.data.data;
+      const { token, user, devVerifyUrl } = res.data.data;
       setAuth(token, user);
+      if (devVerifyUrl) {
+        window.alert(`개발용 이메일 인증 링크: ${devVerifyUrl}`);
+      }
       navigate('/');
     },
   });

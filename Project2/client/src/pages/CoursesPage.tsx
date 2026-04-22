@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { coursesApi } from '../api/courses';
 import { CourseCard } from '../components/course/CourseCard';
+import { enrollmentsApi } from '../api/enrollments';
+import { useAuthStore } from '../stores/authStore';
 
 export function CoursesPage() {
   const [page, setPage] = useState(1);
   const [category, setCategory] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [debouncedQ, setDebouncedQ] = useState('');
+  const user = useAuthStore((s) => s.user);
 
   useEffect(() => {
     const id = window.setTimeout(() => setDebouncedQ(searchInput.trim()), 350);
@@ -35,6 +38,14 @@ export function CoursesPage() {
         })
         .then((r) => r.data.data),
   });
+
+  const { data: myEnrollments } = useQuery({
+    queryKey: ['my-enrollments'],
+    queryFn: () => enrollmentsApi.getMyEnrollments().then((r) => r.data.data),
+    enabled: !!user,
+  });
+
+  const enrolledIds = new Set(myEnrollments?.map((item) => item.course._id) ?? []);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
@@ -95,7 +106,11 @@ export function CoursesPage() {
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {data?.courses.map((course) => (
-              <CourseCard key={course._id} course={course} />
+              <CourseCard
+                key={course._id}
+                course={course}
+                isEnrolled={enrolledIds.has(course._id)}
+              />
             ))}
           </div>
 

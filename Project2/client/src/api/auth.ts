@@ -4,6 +4,8 @@ import type { ApiResponse, User } from '../types';
 interface AuthResponse {
   user: User;
   token: string;
+  message?: string;
+  devVerifyUrl?: string;
 }
 
 export const authApi = {

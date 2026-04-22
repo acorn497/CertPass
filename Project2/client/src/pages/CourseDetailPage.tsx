@@ -1,7 +1,12 @@
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { coursesApi } from '../api/courses';
 import { enrollmentsApi } from '../api/enrollments';
+import { reviewsApi } from '../api/reviews';
+import { qnaApi } from '../api/qna';
+import { examsApi } from '../api/exams';
 import { useAuthStore } from '../stores/authStore';
 
 const levelLabel: Record<string, string> = {
@@ -21,6 +26,8 @@ export function CourseDetailPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
+  const [reviewForm, setReviewForm] = useState({ rating: 5, content: '' });
+  const [qnaForm, setQnaForm] = useState({ title: '', content: '' });
 
   const { data: course, isLoading } = useQuery({
     queryKey: ['course', courseId],
@@ -34,11 +41,46 @@ export function CourseDetailPage() {
     enabled: !!courseId && !!user,
   });
 
+  const { data: reviewsData } = useQuery({
+    queryKey: ['reviews', courseId],
+    queryFn: () => reviewsApi.getByCourse(courseId!).then((r) => r.data.data),
+    enabled: !!courseId,
+  });
+
+  const { data: qnaData } = useQuery({
+    queryKey: ['qna', courseId],
+    queryFn: () => qnaApi.getByCourse(courseId!).then((r) => r.data.data),
+    enabled: !!courseId && !!user && (enrollmentData?.isEnrolled || user.role !== 'student'),
+  });
+
+  const { data: exams } = useQuery({
+    queryKey: ['exams', courseId],
+    queryFn: () => examsApi.getByCourse(courseId!).then((r) => r.data.data),
+    enabled: !!courseId && !!user && (enrollmentData?.isEnrolled || user.role !== 'student'),
+  });
+
   const enrollMutation = useMutation({
     mutationFn: () => enrollmentsApi.enroll(courseId!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['enrollment', courseId] });
       queryClient.invalidateQueries({ queryKey: ['my-enrollments'] });
+    },
+  });
+
+  const reviewMutation = useMutation({
+    mutationFn: () => reviewsApi.create(courseId!, reviewForm),
+    onSuccess: () => {
+      setReviewForm({ rating: 5, content: '' });
+      queryClient.invalidateQueries({ queryKey: ['reviews', courseId] });
+      queryClient.invalidateQueries({ queryKey: ['course', courseId] });
+    },
+  });
+
+  const qnaMutation = useMutation({
+    mutationFn: () => qnaApi.create(courseId!, qnaForm),
+    onSuccess: () => {
+      setQnaForm({ title: '', content: '' });
+      queryClient.invalidateQueries({ queryKey: ['qna', courseId] });
     },
   });
 
@@ -55,6 +97,16 @@ export function CourseDetailPage() {
       return;
     }
     enrollMutation.mutate();
+  };
+
+  const handleReview = (e: FormEvent) => {
+    e.preventDefault();
+    reviewMutation.mutate();
+  };
+
+  const handleQna = (e: FormEvent) => {
+    e.preventDefault();
+    qnaMutation.mutate();
   };
 
   if (isLoading) {
@@ -106,6 +158,8 @@ export function CourseDetailPage() {
             <span>강사: <span className="text-slate-700 font-medium">{course.instructor}</span></span>
             <span className="w-px h-4 bg-slate-200" />
             <span>{totalEpisodes}개 에피소드</span>
+            <span className="w-px h-4 bg-slate-200" />
+            <span className="text-amber-600">★ {(course.avgRating ?? 0).toFixed(1)} ({course.reviewCount ?? 0})</span>
           </div>
 
           {isEnrolled ? (
@@ -157,6 +211,90 @@ export function CourseDetailPage() {
           ))}
         </div>
       </div>
+
+      <div className="mt-8 grid lg:grid-cols-2 gap-6">
+        <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-900 mb-4">리뷰</h2>
+          {isEnrolled && (
+            <form onSubmit={handleReview} className="mb-5 space-y-3">
+              <select
+                value={reviewForm.rating}
+                onChange={(e) => setReviewForm({ ...reviewForm, rating: Number(e.target.value) })}
+                className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+              >
+                {[5, 4, 3, 2, 1].map((rating) => (
+                  <option key={rating} value={rating}>{rating}점</option>
+                ))}
+              </select>
+              <textarea
+                value={reviewForm.content}
+                onChange={(e) => setReviewForm({ ...reviewForm, content: e.target.value })}
+                placeholder="수강 후기를 남겨주세요"
+                className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+              />
+              <button className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white">리뷰 작성</button>
+            </form>
+          )}
+          <div className="space-y-3">
+            {reviewsData?.reviews.map((review) => (
+              <div key={review._id} className="border-t border-slate-100 pt-3">
+                <div className="flex justify-between text-sm">
+                  <span className="font-medium text-slate-800">{review.user?.name ?? '사용자'}</span>
+                  <span className="text-amber-600">★ {review.rating}</span>
+                </div>
+                <p className="mt-1 text-sm text-slate-600">{review.content}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-900 mb-4">Q&A</h2>
+          {isEnrolled && (
+            <form onSubmit={handleQna} className="mb-5 space-y-3">
+              <input
+                value={qnaForm.title}
+                onChange={(e) => setQnaForm({ ...qnaForm, title: e.target.value })}
+                placeholder="질문 제목"
+                className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+              />
+              <textarea
+                value={qnaForm.content}
+                onChange={(e) => setQnaForm({ ...qnaForm, content: e.target.value })}
+                placeholder="질문 내용"
+                className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+              />
+              <button className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white">질문 등록</button>
+            </form>
+          )}
+          <div className="space-y-3">
+            {qnaData?.posts.map((post) => (
+              <div key={post._id} className="border-t border-slate-100 pt-3">
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-medium text-slate-800">{post.title}</p>
+                  {post.isResolved && <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">답변 완료</span>}
+                </div>
+                <p className="mt-1 text-sm text-slate-600">{post.content}</p>
+              </div>
+            ))}
+            {!user && <p className="text-sm text-slate-400">로그인 후 Q&A를 확인할 수 있습니다.</p>}
+          </div>
+        </section>
+      </div>
+
+      {isEnrolled && (
+        <section className="mt-8 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+          <h2 className="text-xl font-bold text-slate-900 mb-4">모의고사</h2>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {exams?.map((exam) => (
+              <Link key={exam._id} to={`/exams/${exam._id}`} className="rounded-xl border border-slate-200 p-4 hover:border-indigo-300">
+                <p className="font-semibold text-slate-900">{exam.title}</p>
+                <p className="mt-1 text-sm text-slate-500">{exam.questionCount ?? 0}문항 · {exam.timeLimit ?? '무제한'}분</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

@@ -9,6 +9,9 @@ import { CourseDetailPage } from './pages/CourseDetailPage';
 import { PlayerPage } from './pages/PlayerPage';
 import { MyCoursesPage } from './pages/MyCoursesPage';
 import { MyPage } from './pages/MyPage';
+import { InstructorPage } from './pages/InstructorPage';
+import { AdminPage } from './pages/AdminPage';
+import { ExamPage } from './pages/ExamPage';
 
 export function AppRoutes() {
   return (
@@ -16,6 +19,7 @@ export function AppRoutes() {
       {/* 플레이어는 Layout 없이 전체화면 */}
       <Route element={<ProtectedRoute />}>
         <Route path="/courses/:courseId/episodes/:episodeId" element={<PlayerPage />} />
+        <Route path="/exams/:examId" element={<ExamPage />} />
       </Route>
 
       <Route element={<Layout />}>
@@ -29,6 +33,14 @@ export function AppRoutes() {
         <Route element={<ProtectedRoute />}>
           <Route path="/my-courses" element={<MyCoursesPage />} />
           <Route path="/mypage" element={<MyPage />} />
+        </Route>
+
+        <Route element={<ProtectedRoute roles={['instructor', 'admin']} />}>
+          <Route path="/instructor" element={<InstructorPage />} />
+        </Route>
+
+        <Route element={<ProtectedRoute roles={['admin']} />}>
+          <Route path="/admin" element={<AdminPage />} />
         </Route>
       </Route>
     </Routes>

@@ -45,6 +45,10 @@ export function Header() {
           {user ? (
             <>
               <NavLink to="/my-courses">내 강의실</NavLink>
+              {(user.role === 'instructor' || user.role === 'admin') && (
+                <NavLink to="/instructor">강사</NavLink>
+              )}
+              {user.role === 'admin' && <NavLink to="/admin">관리자</NavLink>}
               <NavLink to="/mypage">마이페이지</NavLink>
               <div className="w-px h-5 bg-slate-200" />
               <button
