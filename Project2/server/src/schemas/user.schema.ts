@@ -10,7 +10,7 @@ export class User {
   @Prop({ required: true, unique: true, lowercase: true })
   email: string;
 
-  @Prop({ default: null })
+  @Prop({ type: String, default: null })
   password: string | null;
 
   @Prop({ required: true })
@@ -19,22 +19,22 @@ export class User {
   @Prop({ default: 'student', enum: USER_ROLES })
   role: UserRole;
 
-  @Prop({ default: null })
+  @Prop({ type: String, default: null })
   profileImage: string;
 
-  @Prop({ default: null })
+  @Prop({ type: String, default: null })
   refreshToken: string | null;
 
   @Prop({ default: false })
   isEmailVerified: boolean;
 
-  @Prop({ default: null })
+  @Prop({ type: String, default: null })
   emailVerifyToken: string | null;
 
-  @Prop({ default: null })
+  @Prop({ type: String, default: null })
   oauthProvider: string | null;
 
-  @Prop({ default: null })
+  @Prop({ type: String, default: null })
   oauthId: string | null;
 }
 

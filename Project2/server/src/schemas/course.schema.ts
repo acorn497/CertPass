@@ -11,7 +11,7 @@ export class Course {
   @Prop({ required: true })
   description: string;
 
-  @Prop({ default: null })
+  @Prop({ type: String, default: null })
   thumbnail: string | null;
 
   @Prop({ required: true })

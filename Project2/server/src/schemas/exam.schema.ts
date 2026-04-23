@@ -14,7 +14,7 @@ export class Exam {
   @Prop({ default: '' })
   description: string;
 
-  @Prop({ default: null })
+  @Prop({ type: Number, default: null })
   timeLimit: number | null;
 }
 
