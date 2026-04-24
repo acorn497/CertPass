@@ -36,7 +36,7 @@ export function CourseDetailPage() {
   });
 
   const { data: enrollmentData } = useQuery({
-    queryKey: ['enrollment', courseId],
+    queryKey: ['enrollment', user?._id, courseId],
     queryFn: () => enrollmentsApi.checkEnrollment(courseId!).then((r) => r.data.data),
     enabled: !!courseId && !!user,
   });
@@ -48,13 +48,13 @@ export function CourseDetailPage() {
   });
 
   const { data: qnaData } = useQuery({
-    queryKey: ['qna', courseId],
+    queryKey: ['qna', user?._id, courseId],
     queryFn: () => qnaApi.getByCourse(courseId!).then((r) => r.data.data),
     enabled: !!courseId && !!user && (enrollmentData?.isEnrolled || user.role !== 'student'),
   });
 
   const { data: exams } = useQuery({
-    queryKey: ['exams', courseId],
+    queryKey: ['exams', user?._id, courseId],
     queryFn: () => examsApi.getByCourse(courseId!).then((r) => r.data.data),
     enabled: !!courseId && !!user && (enrollmentData?.isEnrolled || user.role !== 'student'),
   });
@@ -62,8 +62,8 @@ export function CourseDetailPage() {
   const enrollMutation = useMutation({
     mutationFn: () => enrollmentsApi.enroll(courseId!),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['enrollment', courseId] });
-      queryClient.invalidateQueries({ queryKey: ['my-enrollments'] });
+      queryClient.invalidateQueries({ queryKey: ['enrollment', user?._id, courseId] });
+      queryClient.invalidateQueries({ queryKey: ['my-enrollments', user?._id] });
     },
   });
 
@@ -80,7 +80,7 @@ export function CourseDetailPage() {
     mutationFn: () => qnaApi.create(courseId!, qnaForm),
     onSuccess: () => {
       setQnaForm({ title: '', content: '' });
-      queryClient.invalidateQueries({ queryKey: ['qna', courseId] });
+      queryClient.invalidateQueries({ queryKey: ['qna', user?._id, courseId] });
     },
   });
 

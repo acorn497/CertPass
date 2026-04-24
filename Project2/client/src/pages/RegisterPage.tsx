@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../api/auth';
 import { useAuthStore } from '../stores/authStore';
 
@@ -20,6 +20,7 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const setAuth = useAuthStore((s) => s.setAuth);
   const {
     register,
@@ -32,6 +33,7 @@ export function RegisterPage() {
       authApi.register(data),
     onSuccess: (res) => {
       const { token, user, devVerifyUrl } = res.data.data;
+      queryClient.clear();
       setAuth(token, user);
       if (devVerifyUrl) {
         window.alert(`개발용 이메일 인증 링크: ${devVerifyUrl}`);

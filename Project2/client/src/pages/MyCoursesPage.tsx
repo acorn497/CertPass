@@ -1,11 +1,14 @@
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { enrollmentsApi } from '../api/enrollments';
+import { useAuthStore } from '../stores/authStore';
 
 export function MyCoursesPage() {
+  const user = useAuthStore((s) => s.user);
   const { data: enrollments = [], isLoading } = useQuery({
-    queryKey: ['my-enrollments'],
+    queryKey: ['my-enrollments', user?._id],
     queryFn: () => enrollmentsApi.getMyEnrollments().then((r) => r.data.data),
+    enabled: !!user,
   });
 
   if (isLoading) {

@@ -2,6 +2,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { coursesApi } from '../api/courses';
 import { progressApi } from '../api/progress';
+import { useAuthStore } from '../stores/authStore';
 import type { Section, Episode } from '../types';
 
 function formatDuration(sec: number) {
@@ -14,6 +15,7 @@ export function PlayerPage() {
   const { courseId, episodeId } = useParams<{ courseId: string; episodeId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const user = useAuthStore((s) => s.user);
 
   // 강의 상세 (사이드바용) — CourseDetailPage와 동일 키/데이터 형태로 캐시 공유
   const { data: course } = useQuery({
@@ -31,16 +33,16 @@ export function PlayerPage() {
 
   // 진도 정보
   const { data: progressData } = useQuery({
-    queryKey: ['progress', courseId],
+    queryKey: ['progress', user?._id, courseId],
     queryFn: () => progressApi.getCourseProgress(courseId!),
-    enabled: !!courseId,
+    enabled: !!courseId && !!user,
   });
 
   const { mutate: completeEpisode, isPending: isCompleting } = useMutation({
     mutationFn: () => progressApi.completeEpisode(courseId!, episodeId!),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['progress', courseId] });
-      queryClient.invalidateQueries({ queryKey: ['my-enrollments'] });
+      queryClient.invalidateQueries({ queryKey: ['progress', user?._id, courseId] });
+      queryClient.invalidateQueries({ queryKey: ['my-enrollments', user?._id] });
     },
   });
 

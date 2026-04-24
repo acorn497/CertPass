@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../../stores/authStore';
 import { authApi } from '../../api/auth';
 
@@ -21,6 +22,7 @@ function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
 
 export function Header() {
   const { user, logout } = useAuthStore();
+  const queryClient = useQueryClient();
 
   const handleLogout = async () => {
     try {
@@ -29,6 +31,7 @@ export function Header() {
       // 서버 오류와 무관하게 클라이언트 로그아웃 진행
     } finally {
       logout();
+      queryClient.clear();
     }
   };
 

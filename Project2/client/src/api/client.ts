@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useAuthStore } from '../stores/authStore';
+import { queryClient } from '../lib/queryClient';
 
 const api = axios.create({
   baseURL: '/api/v1',
@@ -54,6 +55,7 @@ api.interceptors.response.use(
       } catch {
         refreshQueue = [];
         useAuthStore.getState().logout();
+        queryClient.clear();
         return Promise.reject(error);
       } finally {
         isRefreshing = false;

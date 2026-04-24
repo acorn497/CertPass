@@ -40,7 +40,7 @@ export function CoursesPage() {
   });
 
   const { data: myEnrollments } = useQuery({
-    queryKey: ['my-enrollments'],
+    queryKey: ['my-enrollments', user?._id],
     queryFn: () => enrollmentsApi.getMyEnrollments().then((r) => r.data.data),
     enabled: !!user,
   });

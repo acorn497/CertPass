@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../api/auth';
 import { useAuthStore } from '../stores/authStore';
 
@@ -15,6 +15,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const setAuth = useAuthStore((s) => s.setAuth);
   const {
     register,
@@ -26,6 +27,7 @@ export function LoginPage() {
     mutationFn: authApi.login,
     onSuccess: (res) => {
       const { token, user } = res.data.data;
+      queryClient.clear();
       setAuth(token, user);
       navigate('/');
     },
