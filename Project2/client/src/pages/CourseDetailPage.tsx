@@ -28,6 +28,7 @@ export function CourseDetailPage() {
   const user = useAuthStore((s) => s.user);
   const [reviewForm, setReviewForm] = useState({ rating: 5, content: '' });
   const [qnaForm, setQnaForm] = useState({ title: '', content: '' });
+  const [commentForms, setCommentForms] = useState<Record<string, string>>({});
 
   const { data: course, isLoading } = useQuery({
     queryKey: ['course', courseId],
@@ -84,6 +85,15 @@ export function CourseDetailPage() {
     },
   });
 
+  const commentMutation = useMutation({
+    mutationFn: ({ postId, content }: { postId: string; content: string }) =>
+      qnaApi.addComment(postId, { content }),
+    onSuccess: (_res, variables) => {
+      setCommentForms((prev) => ({ ...prev, [variables.postId]: '' }));
+      queryClient.invalidateQueries({ queryKey: ['qna', user?._id, courseId] });
+    },
+  });
+
   const isEnrolled = enrollmentData?.isEnrolled ?? false;
 
   const totalEpisodes = course?.sections.reduce(
@@ -107,6 +117,13 @@ export function CourseDetailPage() {
   const handleQna = (e: FormEvent) => {
     e.preventDefault();
     qnaMutation.mutate();
+  };
+
+  const handleComment = (e: FormEvent, postId: string) => {
+    e.preventDefault();
+    const content = commentForms[postId]?.trim();
+    if (!content) return;
+    commentMutation.mutate({ postId, content });
   };
 
   if (isLoading) {
@@ -275,6 +292,59 @@ export function CourseDetailPage() {
                   {post.isResolved && <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">답변 완료</span>}
                 </div>
                 <p className="mt-1 text-sm text-slate-600">{post.content}</p>
+                {post.comments?.length ? (
+                  <div className="mt-3 space-y-2">
+                    {post.comments.map((comment) => (
+                      <div
+                        key={comment._id}
+                        className={`rounded-xl px-3 py-2 text-sm ${
+                          comment.isInstructor
+                            ? 'bg-indigo-50 text-indigo-900'
+                            : 'bg-slate-50 text-slate-600'
+                        }`}
+                      >
+                        <div className="mb-1 flex items-center gap-2 text-xs font-medium">
+                          <span>{comment.user?.name ?? '사용자'}</span>
+                          {comment.isInstructor && (
+                            <span className="rounded-full bg-indigo-600 px-2 py-0.5 text-white">
+                              강사 답변
+                            </span>
+                          )}
+                        </div>
+                        <p>{comment.content}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+                {user && (isEnrolled || user.role !== 'student') && (
+                  <form
+                    onSubmit={(e) => handleComment(e, post._id)}
+                    className="mt-3 flex gap-2"
+                  >
+                    <input
+                      value={commentForms[post._id] ?? ''}
+                      onChange={(e) =>
+                        setCommentForms((prev) => ({
+                          ...prev,
+                          [post._id]: e.target.value,
+                        }))
+                      }
+                      placeholder={
+                        user.role === 'instructor' || user.role === 'admin'
+                          ? '답변을 입력하세요'
+                          : '댓글을 입력하세요'
+                      }
+                      className="min-w-0 flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                    />
+                    <button
+                      type="submit"
+                      disabled={commentMutation.isPending}
+                      className="shrink-0 rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                    >
+                      {user.role === 'instructor' || user.role === 'admin' ? '답변' : '댓글'}
+                    </button>
+                  </form>
+                )}
               </div>
             ))}
             {!user && <p className="text-sm text-slate-400">로그인 후 Q&A를 확인할 수 있습니다.</p>}

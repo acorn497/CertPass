@@ -30,8 +30,31 @@ export class QnaService {
         .lean(),
       this.postModel.countDocuments(filter),
     ]);
+
+    const comments = await this.commentModel
+      .find({ post_id: { $in: posts.map((post) => post._id) } })
+      .populate('user_id', '_id name role')
+      .sort({ createdAt: 1 })
+      .lean();
+    const commentsByPostId = comments.reduce<Record<string, typeof comments>>(
+      (acc, comment) => {
+        const postId = String(comment.post_id);
+        acc[postId] = acc[postId] ?? [];
+        acc[postId].push(comment);
+        return acc;
+      },
+      {},
+    );
+
     return {
-      posts: posts.map((post) => ({ ...post, user: post.user_id })),
+      posts: posts.map((post) => ({
+        ...post,
+        user: post.user_id,
+        comments: (commentsByPostId[String(post._id)] ?? []).map((comment) => ({
+          ...comment,
+          user: comment.user_id,
+        })),
+      })),
       pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
   }
