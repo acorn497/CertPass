@@ -16,6 +16,9 @@ export class Exam {
 
   @Prop({ type: Number, default: null })
   timeLimit: number | null;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Question' }], default: [] })
+  question_ids: Types.ObjectId[];
 }
 
 export const ExamSchema = SchemaFactory.createForClass(Exam);

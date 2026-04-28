@@ -1,7 +1,41 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document, Schema as MongooseSchema, Types } from 'mongoose';
 
 export type CourseDocument = Course & Document;
+
+export interface CourseEpisode {
+  _id: Types.ObjectId;
+  title: string;
+  videoUrl: string;
+  duration: number;
+  order: number;
+}
+
+export interface CourseSection {
+  _id: Types.ObjectId;
+  title: string;
+  order: number;
+  episodes: CourseEpisode[];
+}
+
+const EpisodeSubSchema = new MongooseSchema(
+  {
+    title: { type: String, required: true },
+    videoUrl: { type: String, required: true },
+    duration: { type: Number, required: true },
+    order: { type: Number, required: true },
+  },
+  { _id: true },
+);
+
+const SectionSubSchema = new MongooseSchema(
+  {
+    title: { type: String, required: true },
+    order: { type: Number, required: true },
+    episodes: { type: [EpisodeSubSchema], default: [] },
+  },
+  { _id: true },
+);
 
 @Schema({ timestamps: true })
 export class Course {
@@ -46,6 +80,9 @@ export class Course {
 
   @Prop({ default: 0 })
   reviewCount: number;
+
+  @Prop({ type: [SectionSubSchema], default: [] })
+  sections: CourseSection[];
 }
 
 export const CourseSchema = SchemaFactory.createForClass(Course);

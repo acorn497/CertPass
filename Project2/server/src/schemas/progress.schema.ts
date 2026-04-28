@@ -11,7 +11,7 @@ export class Progress {
   @Prop({ type: Types.ObjectId, ref: 'Course', required: true })
   course_id: Types.ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: 'Episode', required: true })
+  @Prop({ type: Types.ObjectId, required: true })
   episode_id: Types.ObjectId;
 
   @Prop({ default: false })

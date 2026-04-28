@@ -5,8 +5,8 @@ export type QuestionDocument = Question & Document;
 
 @Schema({ timestamps: true })
 export class Question {
-  @Prop({ type: Types.ObjectId, ref: 'Exam', required: true })
-  exam_id: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'Course', required: true })
+  course_id: Types.ObjectId;
 
   @Prop({ required: true })
   content: string;
