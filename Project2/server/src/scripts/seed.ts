@@ -38,25 +38,25 @@ const CourseSchema = new mongoose.Schema({
   avgRating: { type: Number, default: 0 },
   reviewCount: { type: Number, default: 0 },
   totalDuration: Number,
+  sections: {
+    type: [
+      {
+        title: String,
+        order: Number,
+        episodes: [
+          {
+            title: String,
+            videoUrl: String,
+            duration: Number,
+            order: Number,
+          },
+        ],
+      },
+    ],
+    default: [],
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
-});
-
-const SectionSchema = new mongoose.Schema({
-  course_id: mongoose.Schema.Types.ObjectId,
-  title: String,
-  order: Number,
-  createdAt: { type: Date, default: Date.now },
-});
-
-const EpisodeSchema = new mongoose.Schema({
-  section_id: mongoose.Schema.Types.ObjectId,
-  course_id: mongoose.Schema.Types.ObjectId,
-  title: String,
-  videoUrl: String,
-  duration: Number,
-  order: Number,
-  createdAt: { type: Date, default: Date.now },
 });
 
 const ExamSchema = new mongoose.Schema({
@@ -64,11 +64,12 @@ const ExamSchema = new mongoose.Schema({
   title: String,
   description: String,
   timeLimit: Number,
+  question_ids: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Question' }],
   createdAt: { type: Date, default: Date.now },
 });
 
 const QuestionSchema = new mongoose.Schema({
-  exam_id: mongoose.Schema.Types.ObjectId,
+  course_id: mongoose.Schema.Types.ObjectId,
   content: String,
   options: [String],
   answer: Number,
@@ -80,8 +81,6 @@ const QuestionSchema = new mongoose.Schema({
 const UserModel = mongoose.model('User', UserSchema);
 const CategoryModel = mongoose.model('Category', CategorySchema);
 const CourseModel = mongoose.model('Course', CourseSchema);
-const SectionModel = mongoose.model('Section', SectionSchema);
-const EpisodeModel = mongoose.model('Episode', EpisodeSchema);
 const ExamModel = mongoose.model('Exam', ExamSchema);
 const QuestionModel = mongoose.model('Question', QuestionSchema);
 
@@ -93,8 +92,6 @@ async function seed() {
   await Promise.all([
     CategoryModel.deleteMany({}),
     CourseModel.deleteMany({}),
-    SectionModel.deleteMany({}),
-    EpisodeModel.deleteMany({}),
     UserModel.deleteMany({}),
     ExamModel.deleteMany({}),
     QuestionModel.deleteMany({}),
@@ -218,82 +215,78 @@ async function seed() {
     },
   ]);
 
-  // 정보처리기사 강의 섹션 및 에피소드 생성
   const ipcCourse = courses[0];
-  const sections = await SectionModel.insertMany([
-    { course_id: ipcCourse._id, title: '1과목. 소프트웨어 설계', order: 1 },
-    { course_id: ipcCourse._id, title: '2과목. 소프트웨어 개발', order: 2 },
-    { course_id: ipcCourse._id, title: '3과목. 데이터베이스 구축', order: 3 },
-    { course_id: ipcCourse._id, title: '4과목. 프로그래밍 언어 활용', order: 4 },
-    { course_id: ipcCourse._id, title: '5과목. 정보시스템 구축관리', order: 5 },
-  ]);
-
-  const episodeData: any[] = [];
-
-  // 섹션별 에피소드 (제목 + 실제 YouTube ID + 재생시간)
-  const sectionEpisodes: { title: string; videoUrl: string; duration: number }[][] = [
-    // 1과목. 소프트웨어 설계
-    [
-      { title: '1-1. 소프트웨어 생명주기 모델', videoUrl: 'dQw4w9WgXcQ', duration: 212 },
-      { title: '1-2. 애자일 방법론', videoUrl: '9bZkp7q19f0', duration: 253 },
-      { title: '1-3. UML 다이어그램 개요', videoUrl: 'kJQP7kiw5Fk', duration: 278 },
-      { title: '1-4. 디자인 패턴 기초', videoUrl: 'JGwWNGJdvx8', duration: 252 },
-    ],
-    // 2과목. 소프트웨어 개발
-    [
-      { title: '2-1. 데이터 입출력 구현', videoUrl: 'RgKAFK5djSk', duration: 263 },
-      { title: '2-2. 통합 구현 및 인터페이스', videoUrl: 'OPf0YbXqDm0', duration: 235 },
-      { title: '2-3. 제품 소프트웨어 패키징', videoUrl: 'fJ9rUzIMcZQ', duration: 271 },
-      { title: '2-4. 애플리케이션 테스트', videoUrl: 'CevxZvSJLk8', duration: 229 },
-    ],
-    // 3과목. 데이터베이스 구축
-    [
-      { title: '3-1. 관계형 데이터베이스 개요', videoUrl: 'hT_nvWreIhg', duration: 233 },
-      { title: '3-2. SQL 기본 문법', videoUrl: 'YQHsXMglC9A', duration: 379 },
-      { title: '3-3. 정규화 이론', videoUrl: 'lp-EO5I60KA', duration: 247 },
-      { title: '3-4. 트랜잭션과 동시성 제어', videoUrl: '60ItHLz5WEA', duration: 231 },
-    ],
-    // 4과목. 프로그래밍 언어 활용
-    [
-      { title: '4-1. C언어 기초 문법', videoUrl: 'bo_efYhYU2A', duration: 211 },
-      { title: '4-2. Java 객체지향 개념', videoUrl: 'HP-MbfHFUqs', duration: 215 },
-      { title: '4-3. Python 기초', videoUrl: 'y6120QOlsfU', duration: 340 },
-      { title: '4-4. 운영체제 기본 개념', videoUrl: 'pRpeEdMmmQ0', duration: 215 },
-    ],
-    // 5과목. 정보시스템 구축관리
-    [
-      { title: '5-1. 소프트웨어 개발 보안', videoUrl: 'KMlJBEGALpI', duration: 357 },
-      { title: '5-2. 암호화 알고리즘', videoUrl: 'DK_0jXPuIr0', duration: 189 },
-      { title: '5-3. 네트워크 기본 개념', videoUrl: 'jNQXAC9IVRw', duration: 19 },
-      { title: '5-4. IT 프로젝트 정보시스템 관리', videoUrl: 'ktvTqknDobU', duration: 251 },
-    ],
+  const sections = [
+    {
+      title: '1과목. 소프트웨어 설계',
+      order: 1,
+      episodes: [
+        { title: '1-1. 소프트웨어 생명주기 모델', videoUrl: 'dQw4w9WgXcQ', duration: 212, order: 1 },
+        { title: '1-2. 애자일 방법론', videoUrl: '9bZkp7q19f0', duration: 253, order: 2 },
+        { title: '1-3. UML 다이어그램 개요', videoUrl: 'kJQP7kiw5Fk', duration: 278, order: 3 },
+        { title: '1-4. 디자인 패턴 기초', videoUrl: 'JGwWNGJdvx8', duration: 252, order: 4 },
+      ],
+    },
+    {
+      title: '2과목. 소프트웨어 개발',
+      order: 2,
+      episodes: [
+        { title: '2-1. 데이터 입출력 구현', videoUrl: 'RgKAFK5djSk', duration: 263, order: 1 },
+        { title: '2-2. 통합 구현 및 인터페이스', videoUrl: 'OPf0YbXqDm0', duration: 235, order: 2 },
+        { title: '2-3. 제품 소프트웨어 패키징', videoUrl: 'fJ9rUzIMcZQ', duration: 271, order: 3 },
+        { title: '2-4. 애플리케이션 테스트', videoUrl: 'CevxZvSJLk8', duration: 229, order: 4 },
+      ],
+    },
+    {
+      title: '3과목. 데이터베이스 구축',
+      order: 3,
+      episodes: [
+        { title: '3-1. 관계형 데이터베이스 개요', videoUrl: 'hT_nvWreIhg', duration: 233, order: 1 },
+        { title: '3-2. SQL 기본 문법', videoUrl: 'YQHsXMglC9A', duration: 379, order: 2 },
+        { title: '3-3. 정규화 이론', videoUrl: 'lp-EO5I60KA', duration: 247, order: 3 },
+        { title: '3-4. 트랜잭션과 동시성 제어', videoUrl: '60ItHLz5WEA', duration: 231, order: 4 },
+      ],
+    },
+    {
+      title: '4과목. 프로그래밍 언어 활용',
+      order: 4,
+      episodes: [
+        { title: '4-1. C언어 기초 문법', videoUrl: 'bo_efYhYU2A', duration: 211, order: 1 },
+        { title: '4-2. Java 객체지향 개념', videoUrl: 'HP-MbfHFUqs', duration: 215, order: 2 },
+        { title: '4-3. Python 기초', videoUrl: 'y6120QOlsfU', duration: 340, order: 3 },
+        { title: '4-4. 운영체제 기본 개념', videoUrl: 'pRpeEdMmmQ0', duration: 215, order: 4 },
+      ],
+    },
+    {
+      title: '5과목. 정보시스템 구축관리',
+      order: 5,
+      episodes: [
+        { title: '5-1. 소프트웨어 개발 보안', videoUrl: 'KMlJBEGALpI', duration: 357, order: 1 },
+        { title: '5-2. 암호화 알고리즘', videoUrl: 'DK_0jXPuIr0', duration: 189, order: 2 },
+        { title: '5-3. 네트워크 기본 개념', videoUrl: 'jNQXAC9IVRw', duration: 19, order: 3 },
+        { title: '5-4. IT 프로젝트 정보시스템 관리', videoUrl: 'ktvTqknDobU', duration: 251, order: 4 },
+      ],
+    },
   ];
-
-  sections.forEach((section, si) => {
-    sectionEpisodes[si].forEach((ep, i) => {
-      episodeData.push({
-        section_id: section._id as mongoose.Types.ObjectId,
-        course_id: ipcCourse._id as mongoose.Types.ObjectId,
-        title: ep.title,
-        videoUrl: ep.videoUrl,
-        duration: ep.duration,
-        order: i + 1,
-      });
-    });
-  });
-
-  await EpisodeModel.insertMany(episodeData);
+  const episodeCount = sections.reduce((sum, section) => sum + section.episodes.length, 0);
+  const totalDuration = sections.reduce(
+    (sum, section) =>
+      sum + section.episodes.reduce((episodeSum, episode) => episodeSum + episode.duration, 0),
+    0,
+  );
+  await CourseModel.findByIdAndUpdate(ipcCourse._id, { sections, totalDuration });
 
   const exam = await ExamModel.create({
     course_id: ipcCourse._id,
     title: '정보처리기사 1회 모의고사',
     description: 'P2 샘플 모의고사',
     timeLimit: 30,
+    question_ids: [],
   });
 
-  await QuestionModel.insertMany([
+  const questions = await QuestionModel.insertMany([
     {
-      exam_id: exam._id,
+      course_id: ipcCourse._id,
       content: '소프트웨어 생명주기 모델에 해당하는 것은?',
       options: ['폭포수 모델', '정규화', '인덱싱', '라우팅'],
       answer: 0,
@@ -301,7 +294,7 @@ async function seed() {
       order: 1,
     },
     {
-      exam_id: exam._id,
+      course_id: ipcCourse._id,
       content: '관계형 데이터베이스에서 중복을 줄이는 설계 과정은?',
       options: ['컴파일', '정규화', '렌더링', '배포'],
       answer: 1,
@@ -309,13 +302,16 @@ async function seed() {
       order: 2,
     },
   ]);
+  await ExamModel.findByIdAndUpdate(exam._id, {
+    question_ids: questions.map((question) => question._id),
+  });
 
   console.log('✅ 시드 완료');
   console.log(`  사용자: ${[admin, instructor, student].length}개`);
   console.log(`  카테고리: ${categories.length}개`);
   console.log(`  강의: ${courses.length}개`);
   console.log(`  섹션: ${sections.length}개`);
-  console.log(`  에피소드: ${episodeData.length}개`);
+  console.log(`  에피소드: ${episodeCount}개`);
   console.log('  로그인: admin@certpass.test / instructor@certpass.test / student@certpass.test (password123)');
 
   await mongoose.disconnect();
