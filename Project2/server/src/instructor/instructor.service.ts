@@ -4,7 +4,6 @@ import { Model, Types } from 'mongoose';
 import { Course, CourseDocument } from '../schemas/course.schema';
 import { Enrollment, EnrollmentDocument } from '../schemas/enrollment.schema';
 import { Progress, ProgressDocument } from '../schemas/progress.schema';
-import { Episode, EpisodeDocument } from '../schemas/episode.schema';
 
 @Injectable()
 export class InstructorService {
@@ -13,7 +12,6 @@ export class InstructorService {
     @InjectModel(Enrollment.name)
     private enrollmentModel: Model<EnrollmentDocument>,
     @InjectModel(Progress.name) private progressModel: Model<ProgressDocument>,
-    @InjectModel(Episode.name) private episodeModel: Model<EpisodeDocument>,
   ) {}
 
   async myCourses(userId: string, role: string) {
@@ -38,7 +36,7 @@ export class InstructorService {
 
     const [enrollmentCount, episodes, completedCount] = await Promise.all([
       this.enrollmentModel.countDocuments({ course_id: course._id }),
-      this.episodeModel.find({ course_id: course._id }).select('_id title order').lean(),
+      Promise.resolve((course.sections ?? []).flatMap((section) => section.episodes ?? [])),
       this.progressModel.countDocuments({ course_id: course._id, isCompleted: true }),
     ]);
 

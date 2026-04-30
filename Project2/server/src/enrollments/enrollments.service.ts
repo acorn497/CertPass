@@ -9,7 +9,6 @@ import { Model, Types } from 'mongoose';
 
 import { Enrollment, EnrollmentDocument } from '../schemas/enrollment.schema';
 import { Course, CourseDocument } from '../schemas/course.schema';
-import { Episode, EpisodeDocument } from '../schemas/episode.schema';
 import { Progress, ProgressDocument } from '../schemas/progress.schema';
 import { User, UserDocument } from '../schemas/user.schema';
 
@@ -19,6 +18,7 @@ interface PopulatedCourse {
   thumbnail: string | null;
   instructor: string;
   examName: string;
+  sections?: Array<{ episodes?: unknown[] }>;
 }
 
 export interface MyEnrollmentResponse {
@@ -48,8 +48,6 @@ export class EnrollmentsService {
     private enrollmentModel: Model<EnrollmentDocument>,
     @InjectModel(Course.name)
     private courseModel: Model<CourseDocument>,
-    @InjectModel(Episode.name)
-    private episodeModel: Model<EpisodeDocument>,
     @InjectModel(Progress.name)
     private progressModel: Model<ProgressDocument>,
     @InjectModel(User.name)
@@ -95,7 +93,7 @@ export class EnrollmentsService {
       .find({ user_id: userOid })
       .populate<{ course_id: PopulatedCourse }>(
         'course_id',
-        'title thumbnail instructor examName',
+        'title thumbnail instructor examName sections',
       )
       .sort({ enrolledAt: -1 })
       .lean();
@@ -110,10 +108,7 @@ export class EnrollmentsService {
         const course = e.course_id;
         const courseOid = course._id;
 
-        // 총 에피소드 수
-        const totalCount = await this.episodeModel.countDocuments({
-          course_id: courseOid,
-        });
+        const totalCount = this.countEpisodes(course.sections ?? []);
 
         // 완료한 에피소드 수
         const completedCount = await this.progressModel.countDocuments({
@@ -174,5 +169,9 @@ export class EnrollmentsService {
       isEnrolled: !!enrollment,
       enrolledAt: enrollment?.enrolledAt ?? null,
     };
+  }
+
+  private countEpisodes(sections: Array<{ episodes?: unknown[] }>) {
+    return sections.reduce((sum, section) => sum + (section.episodes?.length ?? 0), 0);
   }
 }

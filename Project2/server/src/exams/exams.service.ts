@@ -22,12 +22,10 @@ export class ExamsService {
   async findByCourse(userId: string, role: string, courseId: string) {
     await this.assertCourseAccess(userId, role, courseId);
     const exams = await this.examModel.find({ course_id: courseId }).lean();
-    return Promise.all(
-      exams.map(async (exam) => ({
-        ...exam,
-        questionCount: await this.questionModel.countDocuments({ exam_id: exam._id }),
-      })),
-    );
+    return exams.map((exam) => ({
+      ...exam,
+      questionCount: exam.question_ids?.length ?? 0,
+    }));
   }
 
   async createExam(
@@ -42,6 +40,7 @@ export class ExamsService {
       title: dto.title,
       description: dto.description ?? '',
       timeLimit: dto.timeLimit ?? null,
+      question_ids: [],
     });
   }
 
@@ -50,7 +49,7 @@ export class ExamsService {
     if (!exam) throw new NotFoundException('모의고사를 찾을 수 없습니다');
     await this.assertCourseAccess(userId, role, String(exam.course_id));
     return this.questionModel
-      .find({ exam_id: exam._id })
+      .find({ _id: { $in: exam.question_ids ?? [] } })
       .select('_id content options order')
       .sort({ order: 1 })
       .lean();
@@ -71,14 +70,17 @@ export class ExamsService {
     const exam = await this.examModel.findById(examId);
     if (!exam) throw new NotFoundException('모의고사를 찾을 수 없습니다');
     await this.assertCourseOwnerOrAdmin(userId, role, String(exam.course_id));
-    return this.questionModel.create({
-      exam_id: exam._id,
+    const question = await this.questionModel.create({
+      course_id: exam.course_id,
       content: dto.content,
       options: dto.options,
       answer: dto.answer,
       explanation: dto.explanation ?? '',
       order: dto.order,
     });
+    exam.question_ids.push(question._id as Types.ObjectId);
+    await exam.save();
+    return question;
   }
 
   async submitAttempt(
@@ -91,7 +93,9 @@ export class ExamsService {
     if (!exam) throw new NotFoundException('모의고사를 찾을 수 없습니다');
     await this.assertCourseAccess(userId, role, String(exam.course_id));
 
-    const questions = await this.questionModel.find({ exam_id: exam._id }).lean();
+    const questions = await this.questionModel
+      .find({ _id: { $in: exam.question_ids ?? [] } })
+      .lean();
     const answerMap = new Map(answers.map((a) => [a.questionId, a.selected]));
     const results = questions.map((question) => {
       const selected = answerMap.get(String(question._id));

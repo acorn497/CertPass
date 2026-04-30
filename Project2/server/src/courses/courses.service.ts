@@ -5,11 +5,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User, UserDocument } from '../schemas/user.schema';
-import { Course, CourseDocument } from '../schemas/course.schema';
-import { Section, SectionDocument } from '../schemas/section.schema';
-import { Episode, EpisodeDocument } from '../schemas/episode.schema';
+import { Course, CourseDocument, CourseSection } from '../schemas/course.schema';
 import { Category, CategoryDocument } from '../schemas/category.schema';
 
 function escapeRegex(text: string): string {
@@ -20,8 +18,6 @@ function escapeRegex(text: string): string {
 export class CoursesService {
   constructor(
     @InjectModel(Course.name) private courseModel: Model<CourseDocument>,
-    @InjectModel(Section.name) private sectionModel: Model<SectionDocument>,
-    @InjectModel(Episode.name) private episodeModel: Model<EpisodeDocument>,
     @InjectModel(Category.name) private categoryModel: Model<CategoryDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
   ) {}
@@ -72,21 +68,12 @@ export class CoursesService {
       this.courseModel.countDocuments(filter),
     ]);
 
-    const coursesWithCount = await Promise.all(
-      courses.map(async (course) => {
-        const episodeCount = await this.episodeModel.countDocuments({
-          course_id: course._id,
-        });
-        return {
-          ...course,
-          category: course.category_id,
-          episodeCount,
-        };
-      }),
-    );
-
     return {
-      courses: coursesWithCount,
+      courses: courses.map((course) => ({
+        ...course,
+        category: course.category_id,
+        episodeCount: this.countEpisodes(course.sections ?? []),
+      })),
       pagination: {
         total,
         page,
@@ -104,26 +91,10 @@ export class CoursesService {
 
     if (!course) throw new NotFoundException('강의를 찾을 수 없습니다');
 
-    const sections = await this.sectionModel
-      .find({ course_id: course._id })
-      .sort({ order: 1 })
-      .lean();
-
-    const sectionsWithEpisodes = await Promise.all(
-      sections.map(async (section) => {
-        const episodes = await this.episodeModel
-          .find({ section_id: section._id })
-          .sort({ order: 1 })
-          .select('_id title duration order')
-          .lean();
-        return { ...section, episodes };
-      }),
-    );
-
     return {
       ...course,
       category: course.category_id,
-      sections: sectionsWithEpisodes,
+      sections: this.sortSections(course.sections ?? []),
     };
   }
 
@@ -157,6 +128,7 @@ export class CoursesService {
       isPublished: false,
       status: 'pending',
       totalDuration: 0,
+      sections: [],
     });
   }
 
@@ -191,11 +163,7 @@ export class CoursesService {
     if (!['pending', 'rejected'].includes(course.status)) {
       throw new BadRequestException('승인된 강의는 삭제할 수 없습니다');
     }
-    await Promise.all([
-      this.courseModel.findByIdAndDelete(courseId),
-      this.sectionModel.deleteMany({ course_id: course._id }),
-      this.episodeModel.deleteMany({ course_id: course._id }),
-    ]);
+    await this.courseModel.findByIdAndDelete(courseId);
     return { message: '강의가 삭제되었습니다.' };
   }
 
@@ -220,9 +188,17 @@ export class CoursesService {
     return { thumbnail: course.thumbnail };
   }
 
-  async createSection(userId: string, courseId: string, role: string, dto: { title: string; order: number }) {
+  async createSection(
+    userId: string,
+    courseId: string,
+    role: string,
+    dto: { title: string; order: number },
+  ) {
     const course = await this.assertCourseOwnerOrAdmin(userId, courseId, role);
-    return this.sectionModel.create({ course_id: course._id, ...dto });
+    const section = { _id: new Types.ObjectId(), ...dto, episodes: [] };
+    course.sections.push(section);
+    await course.save();
+    return section;
   }
 
   async updateSection(
@@ -232,22 +208,21 @@ export class CoursesService {
     role: string,
     dto: { title?: string; order?: number },
   ) {
-    await this.assertCourseOwnerOrAdmin(userId, courseId, role);
-    const section = await this.sectionModel.findOneAndUpdate(
-      { _id: sectionId, course_id: courseId },
-      dto,
-      { new: true },
-    );
+    const course = await this.assertCourseOwnerOrAdmin(userId, courseId, role);
+    const section = this.findSection(course, sectionId);
     if (!section) throw new NotFoundException('섹션을 찾을 수 없습니다');
+    Object.assign(section, dto);
+    await course.save();
     return section;
   }
 
   async removeSection(userId: string, courseId: string, sectionId: string, role: string) {
-    await this.assertCourseOwnerOrAdmin(userId, courseId, role);
-    await Promise.all([
-      this.sectionModel.findOneAndDelete({ _id: sectionId, course_id: courseId }),
-      this.episodeModel.deleteMany({ section_id: sectionId, course_id: courseId }),
-    ]);
+    const course = await this.assertCourseOwnerOrAdmin(userId, courseId, role);
+    const before = course.sections.length;
+    course.sections = course.sections.filter((section) => String(section._id) !== sectionId);
+    if (course.sections.length === before) throw new NotFoundException('섹션을 찾을 수 없습니다');
+    this.updateDuration(course);
+    await course.save();
     return { message: '섹션이 삭제되었습니다.' };
   }
 
@@ -258,15 +233,13 @@ export class CoursesService {
     role: string,
     dto: { title: string; videoUrl: string; duration: number; order: number },
   ) {
-    await this.assertCourseOwnerOrAdmin(userId, courseId, role);
-    const section = await this.sectionModel.findOne({ _id: sectionId, course_id: courseId });
+    const course = await this.assertCourseOwnerOrAdmin(userId, courseId, role);
+    const section = this.findSection(course, sectionId);
     if (!section) throw new NotFoundException('섹션을 찾을 수 없습니다');
-    const episode = await this.episodeModel.create({
-      section_id: section._id,
-      course_id: courseId,
-      ...dto,
-    });
-    await this.recalculateDuration(courseId);
+    const episode = { _id: new Types.ObjectId(), ...dto };
+    section.episodes.push(episode);
+    this.updateDuration(course);
+    await course.save();
     return episode;
   }
 
@@ -278,14 +251,14 @@ export class CoursesService {
     role: string,
     dto: Partial<{ title: string; videoUrl: string; duration: number; order: number }>,
   ) {
-    await this.assertCourseOwnerOrAdmin(userId, courseId, role);
-    const episode = await this.episodeModel.findOneAndUpdate(
-      { _id: episodeId, section_id: sectionId, course_id: courseId },
-      dto,
-      { new: true },
-    );
+    const course = await this.assertCourseOwnerOrAdmin(userId, courseId, role);
+    const section = this.findSection(course, sectionId);
+    if (!section) throw new NotFoundException('섹션을 찾을 수 없습니다');
+    const episode = section.episodes.find((ep) => String(ep._id) === episodeId);
     if (!episode) throw new NotFoundException('에피소드를 찾을 수 없습니다');
-    await this.recalculateDuration(courseId);
+    Object.assign(episode, dto);
+    this.updateDuration(course);
+    await course.save();
     return episode;
   }
 
@@ -296,14 +269,16 @@ export class CoursesService {
     episodeId: string,
     role: string,
   ) {
-    await this.assertCourseOwnerOrAdmin(userId, courseId, role);
-    const episode = await this.episodeModel.findOneAndDelete({
-      _id: episodeId,
-      section_id: sectionId,
-      course_id: courseId,
-    });
-    if (!episode) throw new NotFoundException('에피소드를 찾을 수 없습니다');
-    await this.recalculateDuration(courseId);
+    const course = await this.assertCourseOwnerOrAdmin(userId, courseId, role);
+    const section = this.findSection(course, sectionId);
+    if (!section) throw new NotFoundException('섹션을 찾을 수 없습니다');
+    const before = section.episodes.length;
+    section.episodes = section.episodes.filter((episode) => String(episode._id) !== episodeId);
+    if (section.episodes.length === before) {
+      throw new NotFoundException('에피소드를 찾을 수 없습니다');
+    }
+    this.updateDuration(course);
+    await course.save();
     return { message: '에피소드가 삭제되었습니다.' };
   }
 
@@ -316,9 +291,34 @@ export class CoursesService {
     return course;
   }
 
-  private async recalculateDuration(courseId: string) {
-    const episodes = await this.episodeModel.find({ course_id: courseId }).select('duration');
-    const totalDuration = episodes.reduce((sum, episode) => sum + episode.duration, 0);
-    await this.courseModel.findByIdAndUpdate(courseId, { totalDuration });
+  private findSection(course: CourseDocument, sectionId: string) {
+    return course.sections.find((section) => String(section._id) === sectionId);
+  }
+
+  private updateDuration(course: CourseDocument) {
+    course.totalDuration = this.countDuration(course.sections);
+  }
+
+  private countEpisodes(sections: Pick<CourseSection, 'episodes'>[]) {
+    return sections.reduce((sum, section) => sum + (section.episodes?.length ?? 0), 0);
+  }
+
+  private countDuration(sections: CourseSection[]) {
+    return sections.reduce(
+      (sum, section) =>
+        sum + section.episodes.reduce((episodeSum, episode) => episodeSum + episode.duration, 0),
+      0,
+    );
+  }
+
+  private sortSections<T extends { order: number; episodes?: { order: number }[] }>(
+    sections: T[],
+  ) {
+    return [...sections]
+      .sort((a, b) => a.order - b.order)
+      .map((section) => ({
+        ...section,
+        episodes: [...(section.episodes ?? [])].sort((a, b) => a.order - b.order),
+      }));
   }
 }
