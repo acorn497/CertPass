@@ -27,6 +27,11 @@ export function CourseDetailPage() {
   const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
   const [reviewForm, setReviewForm] = useState({ rating: 5, content: '' });
+  const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
+  const [editReviewForm, setEditReviewForm] = useState({
+    rating: 5,
+    content: '',
+  });
   const [qnaForm, setQnaForm] = useState({ title: '', content: '' });
   const [commentForms, setCommentForms] = useState<Record<string, string>>({});
 
@@ -77,6 +82,24 @@ export function CourseDetailPage() {
     },
   });
 
+  const updateReviewMutation = useMutation({
+    mutationFn: ({
+      reviewId,
+      rating,
+      content,
+    }: {
+      reviewId: string;
+      rating: number;
+      content: string;
+    }) => reviewsApi.update(courseId!, reviewId, { rating, content }),
+    onSuccess: () => {
+      setEditingReviewId(null);
+      setEditReviewForm({ rating: 5, content: '' });
+      queryClient.invalidateQueries({ queryKey: ['reviews', courseId] });
+      queryClient.invalidateQueries({ queryKey: ['course', courseId] });
+    },
+  });
+
   const qnaMutation = useMutation({
     mutationFn: () => qnaApi.create(courseId!, qnaForm),
     onSuccess: () => {
@@ -95,6 +118,12 @@ export function CourseDetailPage() {
   });
 
   const isEnrolled = enrollmentData?.isEnrolled ?? false;
+  const myReview = reviewsData?.reviews.find(
+    (review) => review.user?._id === user?._id,
+  );
+  const otherReviews = reviewsData?.reviews.filter(
+    (review) => review.user?._id !== user?._id,
+  ) ?? [];
 
   const totalEpisodes = course?.sections.reduce(
     (acc, s) => acc + s.episodes.length,
@@ -112,6 +141,20 @@ export function CourseDetailPage() {
   const handleReview = (e: FormEvent) => {
     e.preventDefault();
     reviewMutation.mutate();
+  };
+
+  const startEditReview = (review: {
+    _id: string;
+    rating: number;
+    content: string;
+  }) => {
+    setEditingReviewId(review._id);
+    setEditReviewForm({ rating: review.rating, content: review.content });
+  };
+
+  const handleUpdateReview = (e: FormEvent, reviewId: string) => {
+    e.preventDefault();
+    updateReviewMutation.mutate({ reviewId, ...editReviewForm });
   };
 
   const handleQna = (e: FormEvent) => {
@@ -232,7 +275,77 @@ export function CourseDetailPage() {
       <div className="mt-8 grid lg:grid-cols-2 gap-6">
         <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
           <h2 className="text-xl font-bold text-slate-900 mb-4">리뷰</h2>
-          {isEnrolled && (
+          {isEnrolled && myReview ? (
+            <div className="mb-5 rounded-2xl border border-indigo-100 bg-indigo-50/50 p-4">
+              <p className="mb-3 text-xs font-semibold text-indigo-600">내 리뷰</p>
+              {editingReviewId === myReview._id ? (
+                <form
+                  onSubmit={(e) => handleUpdateReview(e, myReview._id)}
+                  className="space-y-3"
+                >
+                  <select
+                    value={editReviewForm.rating}
+                    onChange={(e) =>
+                      setEditReviewForm({
+                        ...editReviewForm,
+                        rating: Number(e.target.value),
+                      })
+                    }
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  >
+                    {[5, 4, 3, 2, 1].map((rating) => (
+                      <option key={rating} value={rating}>
+                        {rating}점
+                      </option>
+                    ))}
+                  </select>
+                  <textarea
+                    value={editReviewForm.content}
+                    onChange={(e) =>
+                      setEditReviewForm({
+                        ...editReviewForm,
+                        content: e.target.value,
+                      })
+                    }
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      type="submit"
+                      disabled={updateReviewMutation.isPending}
+                      className="rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                    >
+                      저장
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditingReviewId(null)}
+                      className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-600"
+                    >
+                      취소
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <>
+                  <div className="flex justify-between gap-3 text-sm">
+                    <span className="font-medium text-slate-800">
+                      {myReview.user?.name ?? '사용자'}
+                    </span>
+                    <span className="text-amber-600">★ {myReview.rating}</span>
+                  </div>
+                  <p className="mt-1 text-sm text-slate-600">{myReview.content}</p>
+                  <button
+                    type="button"
+                    onClick={() => startEditReview(myReview)}
+                    className="mt-2 text-xs font-medium text-indigo-600 hover:underline"
+                  >
+                    수정
+                  </button>
+                </>
+              )}
+            </div>
+          ) : isEnrolled ? (
             <form onSubmit={handleReview} className="mb-5 space-y-3">
               <select
                 value={reviewForm.rating}
@@ -251,15 +364,76 @@ export function CourseDetailPage() {
               />
               <button className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white">리뷰 작성</button>
             </form>
-          )}
+          ) : null}
           <div className="space-y-3">
-            {reviewsData?.reviews.map((review) => (
+            {otherReviews.map((review) => (
               <div key={review._id} className="border-t border-slate-100 pt-3">
-                <div className="flex justify-between text-sm">
-                  <span className="font-medium text-slate-800">{review.user?.name ?? '사용자'}</span>
-                  <span className="text-amber-600">★ {review.rating}</span>
-                </div>
-                <p className="mt-1 text-sm text-slate-600">{review.content}</p>
+                {editingReviewId === review._id ? (
+                  <form
+                    onSubmit={(e) => handleUpdateReview(e, review._id)}
+                    className="space-y-3"
+                  >
+                    <select
+                      value={editReviewForm.rating}
+                      onChange={(e) =>
+                        setEditReviewForm({
+                          ...editReviewForm,
+                          rating: Number(e.target.value),
+                        })
+                      }
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                    >
+                      {[5, 4, 3, 2, 1].map((rating) => (
+                        <option key={rating} value={rating}>
+                          {rating}점
+                        </option>
+                      ))}
+                    </select>
+                    <textarea
+                      value={editReviewForm.content}
+                      onChange={(e) =>
+                        setEditReviewForm({
+                          ...editReviewForm,
+                          content: e.target.value,
+                        })
+                      }
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        type="submit"
+                        disabled={updateReviewMutation.isPending}
+                        className="rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                      >
+                        저장
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingReviewId(null)}
+                        className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600"
+                      >
+                        취소
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <div className="flex justify-between gap-3 text-sm">
+                      <span className="font-medium text-slate-800">{review.user?.name ?? '사용자'}</span>
+                      <span className="text-amber-600">★ {review.rating}</span>
+                    </div>
+                    <p className="mt-1 text-sm text-slate-600">{review.content}</p>
+                    {user?._id === review.user?._id && (
+                      <button
+                        type="button"
+                        onClick={() => startEditReview(review)}
+                        className="mt-2 text-xs font-medium text-indigo-600 hover:underline"
+                      >
+                        수정
+                      </button>
+                    )}
+                  </>
+                )}
               </div>
             ))}
           </div>
