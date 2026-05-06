@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI Draft — 소모품 재고 관리 앱</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'Pretendard', sans-serif;
+    background: #f8fafc;
+    color: #0f172a;
+    padding: 32px;
+    line-height: 1.6;
+  }
+  h1 { font-size: 24px; margin-bottom: 8px; }
+  .subtitle { color: #64748b; margin-bottom: 32px; font-size: 15px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: box-shadow 0.2s;
+  }
+  .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
+  .card .num {
+    display: inline-block;
+    background: #dbeafe;
+    color: #2563eb;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+  }
+  .card h2 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .card p { font-size: 13px; color: #64748b; }
+  .flow { margin-top: 40px; }
+  .flow h2 { font-size: 18px; margin-bottom: 12px; }
+  .flow-line {
+    font-size: 14px;
+    color: #475569;
+    margin-bottom: 6px;
+    padding-left: 16px;
+  }
+  .flow-line .arrow { color: #2563eb; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<h1>UI Draft — 소모품 재고 관리 앱</h1>
+<p class="subtitle">모바일 기준 (390px) · 각 파일을 브라우저에서 열어 확인하세요</p>
+
+<div class="grid">
+  <a class="card" href="01_home.html">
+    <span class="num">01</span>
+    <h2>홈 화면</h2>
+    <p>사용기한 경고 섹션 + 상품 목록 + 검색바 + FAB</p>
+  </a>
+
+  <a class="card" href="02_add_method.html">
+    <span class="num">02</span>
+    <h2>등록 방법 선택</h2>
+    <p>Bottom Sheet — 바코드 스캔 / 직접 입력 선택</p>
+  </a>
+
+  <a class="card" href="03_barcode_scan.html">
+    <span class="num">03</span>
+    <h2>바코드 스캔</h2>
+    <p>카메라 뷰파인더 + 스캔 가이드 + 수동 입력 링크</p>
+  </a>
+
+  <a class="card" href="04_product_form_new.html">
+    <span class="num">04</span>
+    <h2>새 상품 등록 (바코드)</h2>
+    <p>바코드 스캔 후 상품명 + 첫 재고 정보 입력</p>
+  </a>
+
+  <a class="card" href="05_product_form_manual.html">
+    <span class="num">05</span>
+    <h2>새 상품 등록 (수동)</h2>
+    <p>바코드 없는 상품 — 이름 직접 입력 + 무기한 토글 ON</p>
+  </a>
+
+  <a class="card" href="06_barcode_duplicate.html">
+    <span class="num">06</span>
+    <h2>기존 상품 재고 추가</h2>
+    <p>동일 바코드 스캔 시 — 기존 상품에 새 재고 추가</p>
+  </a>
+
+  <a class="card" href="07_product_detail.html">
+    <span class="num">07</span>
+    <h2>상품 상세</h2>
+    <p>상품 정보 + 재고 항목 목록 (수량 빠른 조절)</p>
+  </a>
+
+  <a class="card" href="08_inventory_item_edit.html">
+    <span class="num">08</span>
+    <h2>재고 항목 수정</h2>
+    <p>수량, 사용기한, 저장 위치, 메모 수정 + 삭제</p>
+  </a>
+
+  <a class="card" href="09_delete_confirm.html">
+    <span class="num">09</span>
+    <h2>삭제 확인</h2>
+    <p>상품 삭제 시 연관 재고 함께 삭제 경고 다이얼로그</p>
+  </a>
+
+  <a class="card" href="10_search_results.html">
+    <span class="num">10</span>
+    <h2>검색 결과</h2>
+    <p>이름 텍스트 검색 — 매칭 키워드 하이라이트</p>
+  </a>
+
+  <a class="card" href="11_empty_state.html">
+    <span class="num">11</span>
+    <h2>빈 상태</h2>
+    <p>최초 진입 시 — 상품 등록 안내</p>
+  </a>
+</div>
+
+<div class="flow">
+  <h2>화면 흐름</h2>
+  <div class="flow-line"><strong>신규 등록 (바코드):</strong> 01 홈 <span class="arrow">→</span> 02 방법 선택 <span class="arrow">→</span> 03 바코드 스캔 <span class="arrow">→</span> 04 상품+재고 폼 <span class="arrow">→</span> 01 홈</div>
+  <div class="flow-line"><strong>신규 등록 (수동):</strong> 01 홈 <span class="arrow">→</span> 02 방법 선택 <span class="arrow">→</span> 05 수동 입력 폼 <span class="arrow">→</span> 01 홈</div>
+  <div class="flow-line"><strong>기존 상품에 재고 추가:</strong> 01 홈 <span class="arrow">→</span> 02 방법 선택 <span class="arrow">→</span> 03 바코드 스캔 <span class="arrow">→</span> 06 재고 추가 <span class="arrow">→</span> 07 상세</div>
+  <div class="flow-line"><strong>검색 후 수정:</strong> 01 홈 <span class="arrow">→</span> 10 검색 <span class="arrow">→</span> 07 상세 <span class="arrow">→</span> 08 재고 수정 <span class="arrow">→</span> 07 상세</div>
+  <div class="flow-line"><strong>상품 삭제:</strong> 07 상세 <span class="arrow">→</span> 09 삭제 확인 <span class="arrow">→</span> 01 홈</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>홈 — 소모품 재고</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="page-note">01. 홈 화면</div>
+
+<!-- App Bar -->
+<div class="app-bar">
+  <h1>우리집 재고</h1>
+  <button class="app-bar-action" title="설정">⚙</button>
+</div>
+
+<!-- Search -->
+<div class="search-bar">
+  <div class="search-input-wrap">
+    <span class="icon">🔍</span>
+    <input type="text" placeholder="상품명으로 검색">
+  </div>
+  <button class="scan-button" title="바코드 스캔 검색">📷</button>
+</div>
+
+<!-- Expiration Alerts -->
+<div class="alert-section">
+  <div class="alert-section-title">⚠ 사용기한 주의</div>
+
+  <div class="alert-card">
+    <div class="item-name">서울우유 1L</div>
+    <div class="item-meta">냉장고 · 1개</div>
+    <span class="expiry-badge expired">기한 만료 (3/10)</span>
+  </div>
+
+  <div class="alert-card warning">
+    <div class="item-name">풀무원 두부</div>
+    <div class="item-meta">냉장고 · 2개</div>
+    <span class="expiry-badge soon">D-2 (3/14)</span>
+  </div>
+
+  <div class="alert-card warning">
+    <div class="item-name">계란 30구</div>
+    <div class="item-meta">냉장고 · 1개</div>
+    <span class="expiry-badge soon">D-3 (3/15)</span>
+  </div>
+</div>
+
+<!-- Product List -->
+<div class="section-header">
+  전체 상품 <span style="color:var(--primary); font-weight:700">12</span>
+</div>
+
+<div class="product-list">
+  <div class="product-card">
+    <div class="product-info">
+      <div class="product-name">엘지 페리오 치약</div>
+      <div class="product-meta">
+        <span>욕실</span>
+        <span>·</span>
+        <span>무기한</span>
+      </div>
+    </div>
+    <div class="product-quantity">×3</div>
+  </div>
+
+  <div class="product-card">
+    <div class="product-info">
+      <div class="product-name">서울우유 1L</div>
+      <div class="product-meta">
+        <span>냉장고</span>
+        <span>·</span>
+        <span style="color:var(--error); font-weight:600">만료됨</span>
+      </div>
+    </div>
+    <div class="product-quantity">×1</div>
+  </div>
+
+  <div class="product-card">
+    <div class="product-info">
+      <div class="product-name">코스트코 휴지 30롤</div>
+      <div class="product-meta">
+        <span>창고</span>
+        <span>·</span>
+        <span>무기한</span>
+      </div>
+    </div>
+    <div class="product-quantity">×2</div>
+  </div>
+
+  <div class="product-card">
+    <div class="product-info">
+      <div class="product-name">계란 30구</div>
+      <div class="product-meta">
+        <span>냉장고</span>
+        <span>·</span>
+        <span style="color:#92400e; font-weight:600">D-3</span>
+      </div>
+    </div>
+    <div class="product-quantity">×1</div>
+  </div>
+
+  <div class="product-card">
+    <div class="product-info">
+      <div class="product-name">일회용 청소포</div>
+      <div class="product-meta">
+        <span>다용도실</span>
+        <span>·</span>
+        <span>무기한</span>
+      </div>
+    </div>
+    <div class="product-quantity">×5</div>
+  </div>
+
+  <div class="product-card">
+    <div class="product-info">
+      <div class="product-name">퐁퐁 주방세제</div>
+      <div class="product-meta">
+        <span>싱크대</span>
+        <span>·</span>
+        <span>무기한</span>
+      </div>
+    </div>
+    <div class="product-quantity">×1</div>
+  </div>
+
+  <div class="product-card">
+    <div class="product-info">
+      <div class="product-name">오랄비 칫솔</div>
+      <div class="product-meta">
+        <span>욕실</span>
+        <span>·</span>
+        <span>무기한</span>
+      </div>
+    </div>
+    <div class="product-quantity">×4</div>
+  </div>
+</div>
+
+<!-- FAB -->
+<button class="fab" title="상품 추가">＋</button>
+
+</body>
+</html>

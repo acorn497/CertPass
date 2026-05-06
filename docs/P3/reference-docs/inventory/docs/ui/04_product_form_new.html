@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>새 상품 등록 — 소모품 재고</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="page-note">04. 새 상품 + 재고 등록</div>
+
+<!-- App Bar -->
+<div class="app-bar">
+  <button class="back-button">←</button>
+  <h1>새 상품 등록</h1>
+</div>
+
+<div class="form-body">
+  <!-- Barcode (scanned) -->
+  <div class="form-group">
+    <label class="form-label">바코드</label>
+    <div class="barcode-input-row">
+      <input type="text" class="form-input readonly" value="8801234567890" readonly>
+      <button class="scan-btn-inline" title="다시 스캔">📷</button>
+    </div>
+  </div>
+
+  <!-- Product Name -->
+  <div class="form-group">
+    <label class="form-label">상품명 <span style="color:var(--error)">*</span></label>
+    <input type="text" class="form-input" placeholder="예: 서울우유 1L" value="서울우유 1L">
+  </div>
+
+  <hr style="border:none; border-top:1px solid var(--outline); margin:24px 0">
+  <div style="font-size:14px; font-weight:600; color:var(--on-surface-secondary); margin-bottom:16px">첫 번째 재고 정보</div>
+
+  <!-- Quantity -->
+  <div class="form-group">
+    <label class="form-label">수량</label>
+    <div class="quantity-stepper">
+      <button class="qty-btn">−</button>
+      <input type="number" class="qty-value" value="2">
+      <button class="qty-btn">＋</button>
+    </div>
+  </div>
+
+  <!-- Expiration Date -->
+  <div class="form-group">
+    <label class="form-label">사용기한</label>
+    <div class="expiry-toggle-row">
+      <button class="toggle" title="무기한"></button>
+      <span class="expiry-toggle-label">무기한</span>
+    </div>
+    <input type="date" class="form-input" value="2026-03-25">
+  </div>
+
+  <!-- Storage Location -->
+  <div class="form-group">
+    <label class="form-label">저장 위치</label>
+    <select class="location-select">
+      <option value="">선택하세요</option>
+      <option value="1" selected>냉장고</option>
+      <option value="2">냉동고</option>
+      <option value="3">김치냉장고</option>
+      <option value="4">창고</option>
+      <option value="5">펜트리</option>
+      <option value="9">욕실</option>
+      <option value="14">싱크대</option>
+      <option value="28">기타</option>
+    </select>
+  </div>
+
+  <!-- Memo -->
+  <div class="form-group">
+    <label class="form-label">메모</label>
+    <textarea class="form-input" placeholder="구매처, 구매일, 특이사항 등">이마트 구매</textarea>
+  </div>
+</div>
+
+<!-- Bottom Actions -->
+<div class="bottom-actions">
+  <button class="btn btn-secondary">취소</button>
+  <button class="btn btn-primary">저장</button>
+</div>
+
+</body>
+</html>

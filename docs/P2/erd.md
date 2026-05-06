@@ -16,10 +16,10 @@
 | 컬렉션 | 변경 내용 |
 |--------|---------|
 | users | `refreshToken`, `isEmailVerified`, `emailVerifyToken` 필드 추가 |
-| courses | `instructor_id` (User 참조) 추가, `status` 필드로 승인 상태 관리 |
+| courses | `instructor_id`, `status`, 내장 `sections[].episodes[]` 커리큘럼 추가 |
 | reviews | **신규** — 강의 리뷰·평점 |
-| questions | **신규** — 모의고사 문항 |
-| exams | **신규** — 모의고사 세트 |
+| questions | **신규** — 문제은행 문항 (`exam_id` 없음) |
+| exams | **신규** — 모의고사 세트, `question_ids`로 문제은행 참조 |
 | exam_attempts | **신규** — 응시 기록 |
 | qna_posts | **신규** — Q&A 질문 |
 | qna_comments | **신규** — Q&A 답변 |
@@ -70,27 +70,9 @@ Table courses {
   totalDuration number
   avgRating     number    [note: "평균 평점 (역정규화, 리뷰 작성 시 갱신)"]
   reviewCount   number    [default: 0]
+  sections      object[]  [note: "내장 배열: [{ _id, title, order, episodes: [{ _id, title, videoUrl, duration, order }] }]"]
   createdAt     datetime  [not null]
   updatedAt     datetime  [not null]
-}
-
-Table sections {
-  _id       ObjectId  [pk]
-  course_id ObjectId  [ref: > courses._id, not null]
-  title     string    [not null]
-  order     number    [not null]
-  createdAt datetime  [not null]
-}
-
-Table episodes {
-  _id        ObjectId  [pk]
-  section_id ObjectId  [ref: > sections._id, not null]
-  course_id  ObjectId  [ref: > courses._id, not null]
-  title      string    [not null]
-  videoUrl   string    [not null]
-  duration   number    [not null]
-  order      number    [not null]
-  createdAt  datetime  [not null]
 }
 
 Table enrollments {
@@ -105,7 +87,7 @@ Table progresses {
   _id         ObjectId  [pk]
   user_id     ObjectId  [ref: > users._id, not null]
   course_id   ObjectId  [ref: > courses._id, not null]
-  episode_id  ObjectId  [ref: > episodes._id, not null]
+  episode_id  ObjectId  [not null, note: "courses.sections[].episodes[]._id"]
   isCompleted boolean   [not null, default: false]
   watchedAt   datetime
   note: "복합 유니크: (user_id, episode_id)"
@@ -128,12 +110,13 @@ Table exams {
   title       string    [not null]
   description string
   timeLimit   number    [note: "제한 시간(분), null이면 무제한"]
+  question_ids ObjectId[] [ref: > questions._id, note: "문제은행 문항 참조 목록"]
   createdAt   datetime  [not null]
 }
 
 Table questions {
   _id        ObjectId  [pk]
-  exam_id    ObjectId  [ref: > exams._id, not null]
+  course_id  ObjectId  [ref: > courses._id, not null, note: "강의별 문제은행"]
   content    string    [not null, note: "문항 내용"]
   options    string[]  [not null, note: "4개 선택지 배열"]
   answer     number    [not null, note: "정답 인덱스 (0~3)"]
@@ -187,6 +170,7 @@ Table qna_comments {
 - `instructor_id`: P2부터 강사 User 참조. `instructor` 문자열은 역정규화로 유지.
 - `status`: `pending`(승인 대기) → `approved`(승인) → 수강생에게 노출. `rejected`(반려).
 - `avgRating` / `reviewCount`: 리뷰 작성·수정·삭제 시 실시간 갱신.
+- `sections`: 별도 컬렉션 없이 강의 문서 안에 섹션과 에피소드를 내장한다.
 
 ### reviews (신규)
 - 강의당 수강생 1개 리뷰. `(user_id, course_id)` 복합 유니크 인덱스.
@@ -194,6 +178,8 @@ Table qna_comments {
 
 ### exams / questions (신규)
 - 강의 1개에 여러 모의고사 세트 가능.
+- `questions`는 `exam_id`를 갖지 않는 문제은행이다.
+- `exams.question_ids`가 문제은행 문항을 참조해 모의고사를 구성한다.
 - `questions.options`: 4개 선택지 문자열 배열.
 - `questions.answer`: 정답 인덱스 (0~3). 클라이언트로 전송하지 않음.
 

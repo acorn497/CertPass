@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>등록 방법 선택 — 소모품 재고</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="page-note">02. 등록 방법 선택 (Bottom Sheet)</div>
+
+<!-- Background: dimmed home screen -->
+<div class="app-bar" style="opacity:0.4">
+  <h1>우리집 재고</h1>
+</div>
+<div style="opacity:0.4; padding:16px">
+  <div class="product-card">
+    <div class="product-info">
+      <div class="product-name">엘지 페리오 치약</div>
+      <div class="product-meta"><span>욕실 · 무기한</span></div>
+    </div>
+    <div class="product-quantity">×3</div>
+  </div>
+  <div class="product-card">
+    <div class="product-info">
+      <div class="product-name">서울우유 1L</div>
+      <div class="product-meta"><span>냉장고 · 만료됨</span></div>
+    </div>
+    <div class="product-quantity">×1</div>
+  </div>
+</div>
+
+<!-- Overlay -->
+<div class="overlay"></div>
+
+<!-- Bottom Sheet -->
+<div class="bottom-sheet">
+  <div class="bottom-sheet-handle"></div>
+  <h2>상품 추가</h2>
+
+  <button class="sheet-option">
+    <div class="option-icon">📷</div>
+    <div class="option-text">
+      <strong>바코드 스캔</strong>
+      <span>카메라로 바코드를 촬영해 등록합니다</span>
+    </div>
+  </button>
+
+  <button class="sheet-option">
+    <div class="option-icon">✏️</div>
+    <div class="option-text">
+      <strong>직접 입력</strong>
+      <span>이름과 정보를 수동으로 입력합니다</span>
+    </div>
+  </button>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>삭제 확인 — 소모품 재고</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="page-note">09. 삭제 확인 다이얼로그</div>
+
+<!-- Background (dimmed product detail) -->
+<div class="app-bar" style="opacity:0.3">
+  <button class="back-button">←</button>
+  <h1>상품 상세</h1>
+</div>
+<div style="opacity:0.3">
+  <div class="detail-header">
+    <div class="product-name">서울우유 1L</div>
+    <div class="barcode-label">8801234567890</div>
+    <div class="total-qty">총 재고 <strong>3</strong>개 (2건)</div>
+  </div>
+</div>
+
+<!-- Dialog: Product Delete -->
+<div class="dialog-wrap">
+  <div class="dialog">
+    <h3>상품 삭제</h3>
+    <p>
+      <strong>서울우유 1L</strong>을(를) 삭제하시겠습니까?<br>
+      이 상품에 속한 <strong>재고 2건</strong>도 함께 삭제됩니다.
+      이 작업은 되돌릴 수 없습니다.
+    </p>
+    <div class="dialog-actions">
+      <button class="btn btn-secondary">취소</button>
+      <button class="btn btn-danger">삭제</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

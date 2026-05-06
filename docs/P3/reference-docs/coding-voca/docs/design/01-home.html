@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coding Voca — 코딩 영어 단어장</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-base:          #080812;
+      --bg-primary:       #0d0d1c;
+      --bg-card:          #13132b;
+      --bg-elevated:      #1c1c38;
+      --border-subtle:    rgba(255,255,255,0.06);
+      --border-medium:    rgba(255,255,255,0.11);
+      --border-strong:    rgba(255,255,255,0.18);
+      --text-primary:     #eaeaf6;
+      --text-secondary:   #8080a8;
+      --text-muted:       #40405a;
+      --purple:           #7c5cfc;
+      --purple-light:     #a386ff;
+      --purple-dim:       rgba(124,92,252,0.18);
+      --purple-glow:      rgba(124,92,252,0.35);
+      --mint:             #00d4aa;
+      --mint-dim:         rgba(0,212,170,0.15);
+      --mint-glow:        rgba(0,212,170,0.3);
+      --pink:             #ff7eb3;
+      --pink-dim:         rgba(255,126,179,0.15);
+      --pink-glow:        rgba(255,126,179,0.3);
+      --gold:             #ffd166;
+      --radius-sm:        10px;
+      --radius-md:        18px;
+      --radius-lg:        26px;
+      --radius-xl:        36px;
+      --shadow-card:      0 8px 32px rgba(0,0,0,0.5);
+      --shadow-hover:     0 20px 60px rgba(0,0,0,0.6);
+    }
+
+    html {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: var(--bg-base);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 10% 5%, rgba(124,92,252,0.14) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 90% 90%, rgba(0,212,170,0.09) 0%, transparent 60%),
+        radial-gradient(circle, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: auto, auto, 28px 28px;
+    }
+
+    /* ─── NAVBAR ─────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px;
+      background: rgba(8,8,18,0.82);
+      backdrop-filter: blur(24px) saturate(1.4);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; color: inherit;
+    }
+    .nav-logo-mark {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--purple) 0%, var(--mint) 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; flex-shrink: 0;
+    }
+    .nav-logo-label { display: flex; flex-direction: column; gap: 1px; }
+    .nav-logo-name {
+      font-family: 'Bebas Neue', sans-serif; font-size: 20px;
+      letter-spacing: 3px; line-height: 1;
+    }
+    .nav-logo-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; }
+
+    .nav-center { display: flex; align-items: center; gap: 36px; }
+    .nav-link {
+      font-size: 14px; font-weight: 500;
+      color: var(--text-secondary); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-link:hover { color: var(--text-primary); }
+
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-icon-btn {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--bg-elevated); border: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-secondary); font-size: 15px;
+      transition: all 0.2s; text-decoration: none;
+    }
+    .nav-icon-btn:hover { border-color: var(--purple); color: var(--purple-light); }
+
+    /* ─── HERO ───────────────────────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: grid; grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 80px 48px 48px;
+      max-width: 1300px; margin: 0 auto;
+      gap: 48px;
+    }
+
+    .hero-left { animation: fadeUp 0.7s ease both; }
+
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: 100px;
+      background: var(--purple-dim); border: 1px solid rgba(124,92,252,0.3);
+      font-size: 12px; font-weight: 700; letter-spacing: 1.5px;
+      color: var(--purple-light); text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .hero-tag-pulse {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--purple);
+      animation: pulse-dot 2s ease infinite;
+    }
+
+    .hero-headline {
+      font-size: clamp(40px, 5.5vw, 68px);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      margin-bottom: 24px;
+    }
+    .hl-purple { color: var(--purple-light); }
+    .hl-mint   { color: var(--mint); }
+
+    .hero-sub {
+      font-size: 17px; font-weight: 400;
+      color: var(--text-secondary); line-height: 1.75;
+      margin-bottom: 40px;
+    }
+    .hero-sub code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px; color: var(--mint);
+      background: var(--mint-dim); border-radius: 6px;
+      padding: 2px 8px;
+    }
+
+    /* Search bar */
+    .search-wrap {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-medium);
+      border-radius: var(--radius-md);
+      display: flex; align-items: center;
+      overflow: hidden;
+      transition: border-color 0.25s, box-shadow 0.25s;
+      margin-bottom: 18px;
+    }
+    .search-wrap:focus-within {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 4px var(--purple-glow);
+    }
+    .search-icon {
+      padding: 0 16px; color: var(--text-muted); font-size: 18px; flex-shrink: 0;
+    }
+    .search-input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: var(--text-primary); font-size: 16px; font-family: 'Noto Sans KR', sans-serif;
+      padding: 18px 0;
+    }
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-btn {
+      margin: 8px; padding: 10px 24px;
+      background: var(--purple); border: none; border-radius: 12px;
+      color: #fff; font-size: 15px; font-weight: 700;
+      font-family: 'Noto Sans KR', sans-serif;
+      cursor: pointer; white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .search-btn:hover { background: var(--purple-light); transform: scale(1.03); }
+
+    .search-hints { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .search-hint-label { font-size: 12px; color: var(--text-muted); }
+    .search-chip {
+      font-family: 'JetBrains Mono', monospace; font-size: 12px;
+      padding: 3px 10px; border-radius: 6px;
+      background: var(--bg-elevated); border: 1px solid var(--border-subtle);
+      color: var(--text-secondary); cursor: pointer;
+      transition: all 0.2s;
+    }
+    .search-chip:hover { border-color: var(--purple); color: var(--purple-light); }
+
+    /* ── Right: Floating bubbles ── */
+    .hero-right {
+      position: relative; height: 560px;
+      animation: fadeUp 0.7s 0.15s ease both;
+    }
+    .bubbles { position: relative; width: 100%; height: 100%; }
+
+    .bubble {
+      position: absolute;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      display: flex; flex-direction: column; gap: 6px;
+      cursor: default;
+      animation: float-y linear infinite;
+      transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
+      backdrop-filter: blur(8px);
+    }
+    .bubble:hover {
+      border-color: var(--border-strong);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+      z-index: 10;
+    }
+    .bubble-en {
+      font-family: 'Bebas Neue', sans-serif; font-size: 24px;
+      letter-spacing: 1.5px; color: var(--text-primary);
+    }
+    .bubble-kr { font-size: 12px; color: var(--text-muted); }
+    .bubble-tag {
+      font-size: 11px; font-weight: 700; padding: 3px 10px;
+      border-radius: 100px; width: fit-content; margin-top: 2px;
+    }
+    .btag-pink   { background: var(--pink-dim);   color: var(--pink);         border: 1px solid rgba(255,126,179,0.25); }
+    .btag-mint   { background: var(--mint-dim);   color: var(--mint);         border: 1px solid rgba(0,212,170,0.25); }
+    .btag-purple { background: var(--purple-dim); color: var(--purple-light); border: 1px solid rgba(124,92,252,0.25); }
+    .btag-gold   { background: rgba(255,209,102,0.12); color: var(--gold);    border: 1px solid rgba(255,209,102,0.25); }
+
+    /* Individual bubble positions & float timing */
+    .b1 { top:  2%; left: 10%; animation-duration:  8s; animation-delay:  0s;  }
+    .b2 { top:  8%; left: 55%; animation-duration: 11s; animation-delay: -2s;  }
+    .b3 { top: 28%; right:  5%; animation-duration:  9s; animation-delay: -1s;  }
+    .b4 { top: 38%; left:  5%; animation-duration: 10s; animation-delay: -4s;  }
+    .b5 { top: 52%; left: 48%; animation-duration:  8s; animation-delay: -3s;  }
+    .b6 { bottom: 18%; left: 12%; animation-duration: 12s; animation-delay: -6s; }
+    .b7 { bottom: 10%; right: 8%; animation-duration:  9s; animation-delay: -5s; }
+
+    /* Glow accents behind bubbles */
+    .hero-glow-pink {
+      position: absolute; top: 30%; right: 20%;
+      width: 200px; height: 200px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,126,179,0.12), transparent 70%);
+      pointer-events: none;
+    }
+    .hero-glow-mint {
+      position: absolute; bottom: 20%; left: 30%;
+      width: 160px; height: 160px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,212,170,0.1), transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ─── SECTION SHELL ──────────────────────────────────────── */
+    .section {
+      padding: 80px 48px;
+      max-width: 1300px; margin: 0 auto;
+    }
+    .section-header { margin-bottom: 40px; }
+    .section-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--purple-light);
+      margin-bottom: 10px;
+    }
+    .section-title {
+      font-size: 30px; font-weight: 900; letter-spacing: -1px;
+    }
+    .section-desc { font-size: 15px; color: var(--text-secondary); margin-top: 8px; }
+
+    /* ─── TODAY'S WORD ───────────────────────────────────────── */
+    .today-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      position: relative;
+      box-shadow: var(--shadow-card);
+    }
+    /* Rainbow top strip */
+    .today-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--pink), var(--purple), var(--mint));
+    }
+
+    .today-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 28px 36px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-wrap: wrap; gap: 16px;
+    }
+    .today-word-row { display: flex; align-items: center; gap: 24px; }
+    .today-en {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 56px; letter-spacing: 3px; line-height: 1;
+    }
+    .today-meta { display: flex; flex-direction: column; gap: 7px; }
+    .today-kr   { font-size: 16px; font-weight: 500; color: var(--text-secondary); }
+    .today-ipa  {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; color: var(--text-muted);
+    }
+    .cat-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 700;
+    }
+    .cat-pill-purple {
+      background: var(--purple-dim); color: var(--purple-light);
+      border: 1px solid rgba(124,92,252,0.3);
+    }
+    .diff-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 16px; border-radius: 100px; font-size: 13px; font-weight: 700;
+      background: rgba(255,209,102,0.12); color: var(--gold);
+      border: 1px solid rgba(255,209,102,0.28);
+    }
+
+    .today-body { display: grid; grid-template-columns: 1fr 1fr; }
+
+    .meaning-panel {
+      padding: 32px 36px;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .meaning-panel.everyday {
+      border-right: 1px solid var(--border-subtle);
+      background: linear-gradient(145deg, rgba(255,126,179,0.06) 0%, transparent 60%);
+    }
+    .meaning-panel.coding {
+      background: linear-gradient(145deg, rgba(0,212,170,0.06) 0%, transparent 60%);
+    }
+
+    .panel-label {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    }
+    .panel-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .panel-label.ev  { color: var(--pink); }
+    .panel-label.ev  .panel-dot { background: var(--pink); box-shadow: 0 0 8px var(--pink); }
+    .panel-label.cod { color: var(--mint); }
+    .panel-label.cod .panel-dot { background: var(--mint); box-shadow: 0 0 8px var(--mint); }
+
+    .panel-meaning { font-size: 20px; font-weight: 800; }
+    .panel-example {
+      font-size: 14px; color: var(--text-secondary); line-height: 1.75;
+    }
+    .panel-example .en {
+      display: block; color: var(--text-muted); font-style: italic;
+      margin-bottom: 4px; font-size: 13px;
+    }
+
+    .today-footer {
+      padding: 16px 36px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .today-link {
+      font-size: 14px; font-weight: 700; color: var(--purple-light);
+      text-decoration: none; display: flex; align-items: center; gap: 6px;
+      transition: gap 0.2s;
+    }
+    .today-link:hover { gap: 10px; }
+
+    /* ─── CATEGORIES ─────────────────────────────────────────── */
+    /*
+     * 3-col grid: shows up to 6 "featured" categories (2 rows).
+     * Remaining categories are accessed via the "전체 카테고리 보기" CTA.
+     * This pattern scales cleanly — home page never bloats as categories grow.
+     */
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .cat-card {
+      --cc: #7c5cfc;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 20px 18px;
+      text-decoration: none; color: inherit;
+      display: flex; flex-direction: column; gap: 10px;
+      cursor: pointer;
+      transition: transform 0.25s ease, border-color 0.25s, box-shadow 0.25s;
+      position: relative; overflow: hidden;
+    }
+    .cat-card::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--cc);
+      opacity: 0; transition: opacity 0.25s;
+    }
+    .cat-card:hover::after { opacity: 0.055; }
+    .cat-card:hover {
+      border-color: var(--cc);
+      transform: translateY(-5px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px var(--cc);
+    }
+    .cat-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; position: relative; z-index: 1;
+    }
+    .cat-names { position: relative; z-index: 1; }
+    .cat-name    { font-size: 14px; font-weight: 700; }
+    .cat-name-en { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+    .cat-count-area { position: relative; z-index: 1; margin-top: auto; }
+    .cat-count {
+      font-family: 'Bebas Neue', sans-serif; font-size: 28px;
+      color: var(--cc); line-height: 1;
+    }
+    .cat-count-label { font-size: 10px; color: var(--text-muted); }
+
+    /* "See all" row below the grid */
+    .cat-see-all {
+      margin-top: 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .cat-see-all-hint { font-size: 13px; color: var(--text-muted); }
+    .cat-see-all-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 20px; border-radius: 100px;
+      background: var(--bg-elevated); border: 1px solid var(--border-subtle);
+      font-size: 13px; font-weight: 700; color: var(--purple-light);
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    .cat-see-all-link:hover {
+      border-color: var(--purple); background: var(--purple-dim);
+    }
+
+    /* ─── STATS STRIP ────────────────────────────────────────── */
+    .stats-strip {
+      background: var(--bg-card);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .stats-inner {
+      max-width: 1300px; margin: 0 auto;
+      padding: 40px 48px;
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border-subtle);
+    }
+    .stat-item {
+      background: var(--bg-card);
+      padding: 24px 36px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 52px; line-height: 1;
+      background: linear-gradient(135deg, var(--purple-light), var(--mint));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
+    .stat-sub   { font-size: 12px; color: var(--text-muted); }
+
+    /* ─── FOOTER ─────────────────────────────────────────────── */
+    footer {
+      padding: 40px 48px;
+      text-align: center;
+      border-top: 1px solid var(--border-subtle);
+      color: var(--text-muted); font-size: 13px;
+    }
+    footer a { color: var(--purple-light); text-decoration: none; }
+
+    /* ─── ANIMATIONS ─────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes float-y {
+      0%, 100% { transform: translateY(0px); }
+      50%       { transform: translateY(-16px); }
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(0.8); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <a href="01-home.html" class="nav-logo">
+      <div class="nav-logo-mark">💻</div>
+      <div class="nav-logo-label">
+        <span class="nav-logo-name">CODING VOCA</span>
+        <span class="nav-logo-sub">코딩 영어 단어장</span>
+      </div>
+    </a>
+
+    <div class="nav-center">
+      <a href="02-word-list.html" class="nav-link">단어 목록</a>
+      <a href="04-categories.html" class="nav-link">카테고리</a>
+      <a href="#" class="nav-link">언어별</a>
+      <a href="#" class="nav-link">소개</a>
+    </div>
+
+    <div class="nav-right">
+      <a href="#" class="nav-icon-btn" title="검색">🔍</a>
+      <a href="#" class="nav-icon-btn" title="관리자">⚙️</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-tag">
+        <span class="hero-tag-pulse"></span>
+        코딩 영어, 이제 쉽게 배워요
+      </div>
+
+      <h1 class="hero-headline">
+        프로그래밍 단어,<br>
+        <span class="hl-purple">일상 뜻</span>부터<br>
+        <span class="hl-mint">코딩 뜻</span>까지
+      </h1>
+
+      <p class="hero-sub">
+        <code>variable</code>이 '변수'라는 걸 알아도<br>
+        실제로 무슨 뜻인지 헷갈리나요?<br>
+        일상 → 코딩, 두 가지 뜻을 한눈에 비교해요 👀
+      </p>
+
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search-input" type="text"
+          placeholder="단어를 검색하세요 (예: function, 배열, loop)">
+        <button class="search-btn">검색</button>
+      </div>
+
+      <div class="search-hints">
+        <span class="search-hint-label">인기:</span>
+        <span class="search-chip">variable</span>
+        <span class="search-chip">function</span>
+        <span class="search-chip">array</span>
+        <span class="search-chip">class</span>
+        <span class="search-chip">boolean</span>
+      </div>
+    </div>
+
+    <!-- Floating word bubbles -->
+    <div class="hero-right">
+      <div class="bubbles">
+        <div class="hero-glow-pink"></div>
+        <div class="hero-glow-mint"></div>
+
+        <div class="bubble b1">
+          <span class="bubble-en">variable</span>
+          <span class="bubble-kr">배리어블</span>
+          <span class="bubble-tag btag-pink">일상: 가변적인</span>
+        </div>
+        <div class="bubble b2">
+          <span class="bubble-en">function</span>
+          <span class="bubble-kr">펑션</span>
+          <span class="bubble-tag btag-mint">코딩: 기능 묶음</span>
+        </div>
+        <div class="bubble b3">
+          <span class="bubble-en">array</span>
+          <span class="bubble-kr">어레이</span>
+          <span class="bubble-tag btag-purple">기초 문법</span>
+        </div>
+        <div class="bubble b4">
+          <span class="bubble-en">boolean</span>
+          <span class="bubble-kr">불리언</span>
+          <span class="bubble-tag btag-mint">참 또는 거짓</span>
+        </div>
+        <div class="bubble b5">
+          <span class="bubble-en">string</span>
+          <span class="bubble-kr">스트링</span>
+          <span class="bubble-tag btag-pink">일상: 끈, 줄</span>
+        </div>
+        <div class="bubble b6">
+          <span class="bubble-en">loop</span>
+          <span class="bubble-kr">루프</span>
+          <span class="bubble-tag btag-gold">⭐ 초급 필수</span>
+        </div>
+        <div class="bubble b7">
+          <span class="bubble-en">object</span>
+          <span class="bubble-kr">오브젝트</span>
+          <span class="bubble-tag btag-purple">OOP</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TODAY'S WORD -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-eyebrow">✨ TODAY'S WORD</div>
+      <h2 class="section-title">오늘의 단어</h2>
+      <p class="section-desc">매일 새로운 단어로 실력을 키워봐요!</p>
+    </div>
+
+    <div class="today-card">
+      <div class="today-header">
+        <div class="today-word-row">
+          <div class="today-en">variable</div>
+          <div class="today-meta">
+            <span class="today-kr">🗣️ 배리어블</span>
+            <span class="today-ipa">/ˈvɛr.i.ə.bəl/</span>
+            <span class="cat-pill cat-pill-purple">⌨️ 기초 문법</span>
+          </div>
+        </div>
+        <span class="diff-pill">⭐ 초급</span>
+      </div>
+
+      <div class="today-body">
+        <div class="meaning-panel everyday">
+          <div class="panel-label ev">
+            <span class="panel-dot"></span> 🌍 일상에서는
+          </div>
+          <div class="panel-meaning">변하기 쉬운, 가변적인</div>
+          <div class="panel-example">
+            <span class="en">"The weather is very variable today."</span>
+            오늘 날씨가 매우 변덕스럽다.
+          </div>
+        </div>
+
+        <div class="meaning-panel coding">
+          <div class="panel-label cod">
+            <span class="panel-dot"></span> 💻 코딩에서는
+          </div>
+          <div class="panel-meaning">변수 — 값을 저장하는 공간</div>
+          <div class="panel-example">
+            이름표가 붙은 상자처럼 데이터를 담아두는 공간이에요 📦<br>
+            <code style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--mint);">name = "홍길동"</code>
+          </div>
+        </div>
+      </div>
+
+      <div class="today-footer">
+        <span style="font-size:13px;color:var(--text-muted);">🔗 관련 단어: constant · assign · type</span>
+        <a href="03-word-detail.html" class="today-link">
+          자세히 보기 →
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORIES — shows 6 featured; remaining accessed via "전체 보기" -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-eyebrow">📂 CATEGORIES</div>
+      <h2 class="section-title">카테고리별로 탐색하기</h2>
+      <p class="section-desc">관심 있는 분야부터 시작해보세요!</p>
+    </div>
+
+    <!-- 3-col × 2-row = 6 featured categories. Works whether total is 5 or 20. -->
+    <div class="cat-grid">
+      <a href="04-categories.html" class="cat-card" style="--cc:#7c5cfc">
+        <div class="cat-icon">⌨️</div>
+        <div class="cat-names">
+          <div class="cat-name">기초 문법</div>
+          <div class="cat-name-en">Basic Syntax</div>
+        </div>
+        <div class="cat-count-area">
+          <div class="cat-count">24</div>
+          <div class="cat-count-label">단어</div>
+        </div>
+      </a>
+
+      <a href="04-categories.html" class="cat-card" style="--cc:#00d4aa">
+        <div class="cat-icon">🔢</div>
+        <div class="cat-names">
+          <div class="cat-name">데이터 타입</div>
+          <div class="cat-name-en">Data Types</div>
+        </div>
+        <div class="cat-count-area">
+          <div class="cat-count">18</div>
+          <div class="cat-count-label">단어</div>
+        </div>
+      </a>
+
+      <a href="04-categories.html" class="cat-card" style="--cc:#ff7eb3">
+        <div class="cat-icon">🧩</div>
+        <div class="cat-names">
+          <div class="cat-name">객체 지향</div>
+          <div class="cat-name-en">OOP</div>
+        </div>
+        <div class="cat-count-area">
+          <div class="cat-count">16</div>
+          <div class="cat-count-label">단어</div>
+        </div>
+      </a>
+
+      <a href="04-categories.html" class="cat-card" style="--cc:#ffd166">
+        <div class="cat-icon">🌐</div>
+        <div class="cat-names">
+          <div class="cat-name">웹 개발</div>
+          <div class="cat-name-en">Web Dev</div>
+        </div>
+        <div class="cat-count-area">
+          <div class="cat-count">14</div>
+          <div class="cat-count-label">단어</div>
+        </div>
+      </a>
+
+      <a href="04-categories.html" class="cat-card" style="--cc:#f97316">
+        <div class="cat-icon">🔁</div>
+        <div class="cat-names">
+          <div class="cat-name">알고리즘</div>
+          <div class="cat-name-en">Algorithms</div>
+        </div>
+        <div class="cat-count-area">
+          <div class="cat-count">20</div>
+          <div class="cat-count-label">단어</div>
+        </div>
+      </a>
+
+      <a href="04-categories.html" class="cat-card" style="--cc:#64b5f6">
+        <div class="cat-icon">📦</div>
+        <div class="cat-names">
+          <div class="cat-name">일반 / 기타</div>
+          <div class="cat-name-en">General</div>
+        </div>
+        <div class="cat-count-area">
+          <div class="cat-count">22</div>
+          <div class="cat-count-label">단어</div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Shows total count + link — this row stays fixed regardless of category count -->
+    <div class="cat-see-all">
+      <span class="cat-see-all-hint">+ 데이터베이스, 보안, 클라우드 등 6개 카테고리 더</span>
+      <a href="04-categories.html" class="cat-see-all-link">전체 카테고리 12개 보기 →</a>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-strip">
+    <div class="stats-inner">
+      <div class="stat-item">
+        <div class="stat-num">56</div>
+        <div class="stat-label">코딩 단어</div>
+        <div class="stat-sub">초급부터 고급까지</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">5</div>
+        <div class="stat-label">카테고리</div>
+        <div class="stat-sub">체계적으로 분류</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">5</div>
+        <div class="stat-label">프로그래밍 언어</div>
+        <div class="stat-sub">Python, JS, Java, C++, Go</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 <a href="01-home.html">Coding Voca</a> — 코딩 초보를 위한 영어 단어장 💜</p>
+  </footer>
+
+</body>
+</html>

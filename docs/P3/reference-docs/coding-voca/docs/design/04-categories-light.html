@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>카테고리 — Coding Voca (라이트)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-base:       #f0f0fa;
+      --bg-card:       #ffffff;
+      --bg-elevated:   #e6e6f4;
+      --bg-input:      #f8f8fd;
+      --border-subtle: rgba(100,80,220,0.10);
+      --border-medium: rgba(100,80,220,0.18);
+      --text-primary:  #16162a;
+      --text-secondary:#50508a;
+      --text-muted:    #9898bc;
+      --purple:        #6b47f5;
+      --purple-light:  #7c5cfc;
+      --purple-dim:    rgba(107,71,245,0.09);
+      --purple-glow:   rgba(107,71,245,0.22);
+      --mint:          #00a882;
+      --mint-dim:      rgba(0,168,130,0.10);
+      --pink:          #e0457a;
+      --pink-dim:      rgba(224,69,122,0.10);
+      --gold:          #c08800;
+      --shadow-card:   0 2px 16px rgba(100,80,220,0.09), 0 1px 4px rgba(0,0,0,0.04);
+      --shadow-hover:  0 12px 40px rgba(100,80,220,0.16), 0 4px 12px rgba(0,0,0,0.08);
+      --radius-sm:     10px;
+      --radius-md:     18px;
+      --radius-lg:     26px;
+      --radius-xl:     36px;
+    }
+
+    html { font-family: 'Noto Sans KR', sans-serif; background: var(--bg-base); color: var(--text-primary); }
+    body {
+      background-color: var(--bg-base);
+      background-image:
+        radial-gradient(ellipse 70% 40% at 50% -5%, rgba(107,71,245,0.07) 0%, transparent 55%),
+        radial-gradient(circle, rgba(107,71,245,0.05) 1px, transparent 1px);
+      background-size: auto, 28px 28px;
+    }
+
+    /* ─── NAVBAR ─────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: 64px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px;
+      background: rgba(244,244,252,0.88); backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
+    .nav-logo-mark {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--purple), var(--mint));
+      display: flex; align-items: center; justify-content: center; font-size: 17px;
+    }
+    .nav-logo-name { font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; line-height: 1; }
+    .nav-logo-sub  { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; }
+    .nav-links     { display: flex; align-items: center; gap: 36px; }
+    .nav-link { font-size: 14px; font-weight: 500; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+    .nav-link:hover { color: var(--text-primary); }
+    .nav-link.active { color: var(--purple); }
+    .nav-theme-btn {
+      padding: 6px 14px; border-radius: 100px; border: 1px solid var(--border-medium);
+      background: var(--bg-elevated); color: var(--text-secondary);
+      font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: none;
+      transition: all 0.2s;
+    }
+    .nav-theme-btn:hover { border-color: var(--purple); color: var(--purple); }
+
+    /* ─── PAGE HEADER ────────────────────────────────────────── */
+    .page-header {
+      padding: 100px 48px 40px;
+      max-width: 1300px; margin: 0 auto;
+      animation: fadeUp 0.5s ease both;
+    }
+    .page-eyebrow {
+      font-size: 11px; font-weight: 700; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--purple); margin-bottom: 12px;
+    }
+    .page-head-row { display: flex; align-items: baseline; gap: 16px; margin-bottom: 10px; }
+    .page-title { font-size: 40px; font-weight: 900; letter-spacing: -1.5px; }
+    .page-count-badge {
+      display: inline-flex; align-items: center;
+      padding: 4px 14px; border-radius: 100px;
+      background: var(--purple-dim); border: 1px solid rgba(107,71,245,0.22);
+      font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--purple);
+      letter-spacing: 1px;
+    }
+    .page-desc { font-size: 15px; color: var(--text-secondary); line-height: 1.7; }
+
+    /* ─── CONTROLS BAR ───────────────────────────────────────── */
+    .controls-bar {
+      max-width: 1300px; margin: 0 auto;
+      padding: 0 48px 28px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+      animation: fadeUp 0.5s 0.05s ease both;
+    }
+
+    /* Search */
+    .ctrl-search {
+      display: flex; align-items: center;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-medium);
+      border-radius: var(--radius-sm); flex: 1; max-width: 320px;
+      box-shadow: var(--shadow-card);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .ctrl-search:focus-within {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 3px var(--purple-glow), var(--shadow-card);
+    }
+    .ctrl-search-icon { padding: 0 12px; color: var(--text-muted); font-size: 14px; }
+    .ctrl-search input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: var(--text-primary); font-size: 14px;
+      font-family: 'Noto Sans KR', sans-serif; padding: 10px 12px 10px 0;
+    }
+    .ctrl-search input::placeholder { color: var(--text-muted); }
+
+    /* Selects */
+    .ctrl-select-wrap {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--bg-card); border: 1.5px solid var(--border-medium);
+      border-radius: var(--radius-sm); padding: 0 4px 0 12px;
+      box-shadow: var(--shadow-card);
+      transition: border-color 0.2s;
+    }
+    .ctrl-select-wrap:focus-within { border-color: var(--purple); }
+    .ctrl-select-label { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+    .ctrl-select {
+      background: transparent; border: none; outline: none;
+      color: var(--text-secondary); font-size: 13px; font-weight: 600;
+      padding: 9px 4px 9px 0; cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    /* Difficulty filter chips */
+    .ctrl-chips { display: flex; gap: 6px; }
+    .ctrl-chip {
+      padding: 7px 14px; border-radius: 100px;
+      font-size: 12px; font-weight: 700;
+      background: var(--bg-card); border: 1.5px solid var(--border-medium);
+      color: var(--text-secondary); cursor: pointer; white-space: nowrap;
+      box-shadow: var(--shadow-card);
+      transition: all 0.2s;
+    }
+    .ctrl-chip:hover { border-color: var(--purple); color: var(--text-primary); }
+    .ctrl-chip.on {
+      background: var(--purple-dim); border-color: rgba(107,71,245,0.3);
+      color: var(--purple);
+    }
+
+    .ctrl-result-count {
+      margin-left: auto; font-size: 13px; color: var(--text-muted);
+      white-space: nowrap;
+    }
+    .ctrl-result-count strong { color: var(--text-secondary); font-family: 'JetBrains Mono', monospace; }
+
+    /* ─── CATEGORY GRID ──────────────────────────────────────── */
+    /*
+     * auto-fill + minmax: naturally handles 5 → 20+ categories.
+     * No hardcoded column count = no layout breaks as count grows.
+     */
+    .cat-grid {
+      max-width: 1300px; margin: 0 auto;
+      padding: 0 48px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 18px;
+      animation: fadeUp 0.5s 0.1s ease both;
+    }
+
+    /* ─── CATEGORY CARD ──────────────────────────────────────── */
+    .cat-card {
+      --cc: #6b47f5;
+      background: var(--bg-card);
+      border-radius: var(--radius-lg);
+      padding: 26px 24px 20px;
+      text-decoration: none; color: inherit;
+      display: flex; flex-direction: column; gap: 14px;
+      cursor: pointer; position: relative; overflow: hidden;
+      box-shadow: var(--shadow-card);
+      border: 1.5px solid var(--border-subtle);
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+    }
+    /* Left accent bar */
+    .cat-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; bottom: 0; width: 4px;
+      background: var(--cc); opacity: 0.5;
+      transition: opacity 0.25s, width 0.25s;
+    }
+    /* Subtle color wash on hover */
+    .cat-card::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: var(--cc); opacity: 0; transition: opacity 0.25s;
+    }
+    .cat-card:hover::before { opacity: 0.85; }
+    .cat-card:hover::after  { opacity: 0.035; }
+    .cat-card:hover {
+      border-color: var(--cc);
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    /* Top row: icon + count */
+    .cc-top {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      position: relative; z-index: 1;
+    }
+    .cc-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+    }
+    .cc-count-area { text-align: right; }
+    .cc-count {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 42px; line-height: 1; color: var(--cc);
+    }
+    .cc-count-label { font-size: 11px; color: var(--text-muted); margin-top: -2px; }
+
+    /* Names */
+    .cc-names { position: relative; z-index: 1; }
+    .cc-name    { font-size: 19px; font-weight: 900; letter-spacing: -0.3px; }
+    .cc-name-en { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    /* Description — clamped to 2 lines for uniform card height */
+    .cc-desc {
+      font-size: 13px; color: var(--text-secondary); line-height: 1.65;
+      position: relative; z-index: 1;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Word preview chips */
+    .cc-preview {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      position: relative; z-index: 1;
+    }
+    .cc-word-chip {
+      padding: 3px 9px; border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .cat-card:hover .cc-word-chip { border-color: var(--border-medium); color: var(--text-secondary); }
+    .cc-word-more {
+      padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 700;
+      background: var(--purple-dim); border: 1px solid rgba(107,71,245,0.22);
+      color: var(--purple);
+    }
+
+    /* Footer row */
+    .cc-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 14px; margin-top: auto;
+      position: relative; z-index: 1;
+    }
+    /* Difficulty dots */
+    .cc-diff { display: flex; align-items: center; gap: 5px; }
+    .cc-diff-label { font-size: 11px; color: var(--text-muted); margin-right: 4px; }
+    .diff-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--border-medium);
+    }
+    .diff-dot.on { background: var(--cc); }
+    .cc-link {
+      font-size: 13px; font-weight: 700; color: var(--cc);
+      display: flex; align-items: center; gap: 4px;
+      transition: gap 0.2s;
+    }
+    .cat-card:hover .cc-link { gap: 8px; }
+
+    /* ─── EMPTY STATE ─────────────────────────────────────────── */
+    .empty-state {
+      display: none;
+      grid-column: 1 / -1;
+      text-align: center; padding: 64px 20px;
+      color: var(--text-muted);
+    }
+    .empty-state-icon { font-size: 48px; margin-bottom: 14px; }
+    .empty-state-text { font-size: 16px; }
+
+    /* ─── EXPLORE BANNER ─────────────────────────────────────── */
+    .explore-wrap { max-width: 1300px; margin: 40px auto 0; padding: 0 48px 80px; }
+    .explore-banner {
+      background: linear-gradient(135deg,
+        rgba(107,71,245,0.07) 0%, rgba(0,168,130,0.05) 60%, rgba(224,69,122,0.04) 100%);
+      border: 1.5px solid rgba(107,71,245,0.15);
+      border-radius: var(--radius-xl);
+      padding: 44px 52px;
+      display: flex; align-items: center; justify-content: space-between; gap: 32px;
+      flex-wrap: wrap;
+      box-shadow: 0 4px 24px rgba(107,71,245,0.08);
+    }
+    .explore-text { flex: 1; min-width: 240px; }
+    .explore-title { font-size: 24px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 8px; }
+    .explore-desc  { font-size: 14px; color: var(--text-secondary); line-height: 1.65; }
+    .explore-btn {
+      padding: 13px 30px; border-radius: 100px;
+      background: var(--purple); border: none; color: #fff;
+      font-size: 14px; font-weight: 700; cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif; white-space: nowrap;
+      text-decoration: none; display: inline-block;
+      box-shadow: 0 4px 20px rgba(107,71,245,0.35);
+      transition: all 0.2s;
+    }
+    .explore-btn:hover { background: var(--purple-light); transform: scale(1.03); box-shadow: 0 8px 28px rgba(107,71,245,0.45); }
+
+    footer {
+      padding: 36px 48px; text-align: center;
+      border-top: 1px solid var(--border-subtle);
+      color: var(--text-muted); font-size: 13px;
+    }
+    footer a { color: var(--purple); text-decoration: none; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <a href="01-home-light.html" class="nav-logo">
+      <div class="nav-logo-mark">💻</div>
+      <div>
+        <div class="nav-logo-name">CODING VOCA</div>
+        <div class="nav-logo-sub">코딩 영어 단어장</div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="02-word-list-light.html" class="nav-link">단어 목록</a>
+      <a href="04-categories-light.html" class="nav-link active">카테고리</a>
+      <a href="#" class="nav-link">언어별</a>
+      <a href="#" class="nav-link">소개</a>
+      <a href="04-categories.html" class="nav-theme-btn">🌙 다크</a>
+    </div>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <div class="page-eyebrow">📂 CATEGORIES</div>
+    <div class="page-head-row">
+      <h1 class="page-title">카테고리</h1>
+      <!-- 카테고리 수가 늘어나면 이 배지 숫자만 업데이트 -->
+      <span class="page-count-badge">12</span>
+    </div>
+    <p class="page-desc">관심 있는 분야를 골라 집중해서 공부해보세요.<br>카테고리별로 정리된 단어들을 한눈에 확인할 수 있어요.</p>
+  </div>
+
+  <!-- CONTROLS BAR: search + sort + difficulty filter -->
+  <div class="controls-bar">
+    <div class="ctrl-search">
+      <span class="ctrl-search-icon">🔍</span>
+      <input type="text" placeholder="카테고리 검색... (예: 문법, OOP, 웹)">
+    </div>
+
+    <div class="ctrl-select-wrap">
+      <span class="ctrl-select-label">정렬</span>
+      <select class="ctrl-select">
+        <option>단어 많은 순</option>
+        <option>단어 적은 순</option>
+        <option>이름 순 (가나다)</option>
+        <option>이름 순 (A→Z)</option>
+      </select>
+    </div>
+
+    <div class="ctrl-chips">
+      <span class="ctrl-chip on">전체</span>
+      <span class="ctrl-chip">⭐ 초급 위주</span>
+      <span class="ctrl-chip">⭐⭐ 중급 위주</span>
+      <span class="ctrl-chip">⭐⭐⭐ 고급 위주</span>
+    </div>
+
+    <span class="ctrl-result-count">총 <strong>12</strong>개 카테고리</span>
+  </div>
+
+  <!-- CATEGORY GRID — auto-fill: handles 5 → 20+ categories without layout changes -->
+  <div class="cat-grid">
+
+    <a href="02-word-list-light.html" class="cat-card" style="--cc:#6b47f5">
+      <div class="cc-top">
+        <div class="cc-icon">⌨️</div>
+        <div class="cc-count-area">
+          <div class="cc-count">24</div>
+          <div class="cc-count-label">개 단어</div>
+        </div>
+      </div>
+      <div class="cc-names">
+        <div class="cc-name">기초 문법</div>
+        <div class="cc-name-en">Basic Syntax</div>
+      </div>
+      <div class="cc-desc">코딩을 시작할 때 꼭 알아야 할 기본 단어들이에요. 변수, 함수, 조건문, 반복문을 배워요.</div>
+      <div class="cc-preview">
+        <span class="cc-word-chip">variable</span>
+        <span class="cc-word-chip">function</span>
+        <span class="cc-word-chip">loop</span>
+        <span class="cc-word-chip">return</span>
+        <span class="cc-word-more">+20 더</span>
+      </div>
+      <div class="cc-footer">
+        <div class="cc-diff">
+          <span class="cc-diff-label">난이도</span>
+          <div class="diff-dot on"></div><div class="diff-dot"></div><div class="diff-dot"></div>
+        </div>
+        <span class="cc-link">탐색하기 →</span>
+      </div>
+    </a>
+
+    <a href="02-word-list-light.html" class="cat-card" style="--cc:#00a882">
+      <div class="cc-top">
+        <div class="cc-icon">🔢</div>
+        <div class="cc-count-area">
+          <div class="cc-count">18</div>
+          <div class="cc-count-label">개 단어</div>
+        </div>
+      </div>
+      <div class="cc-names">
+        <div class="cc-name">데이터 타입</div>
+        <div class="cc-name-en">Data Types</div>
+      </div>
+      <div class="cc-desc">데이터의 종류를 나타내는 단어들이에요. 숫자, 글자, 참/거짓을 구분하는 방법을 배워요.</div>
+      <div class="cc-preview">
+        <span class="cc-word-chip">string</span>
+        <span class="cc-word-chip">integer</span>
+        <span class="cc-word-chip">boolean</span>
+        <span class="cc-word-chip">array</span>
+        <span class="cc-word-more">+14 더</span>
+      </div>
+      <div class="cc-footer">
+        <div class="cc-diff">
+          <span class="cc-diff-label">난이도</span>
+          <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot"></div>
+        </div>
+        <span class="cc-link">탐색하기 →</span>
+      </div>
+    </a>
+
+    <a href="02-word-list-light.html" class="cat-card" style="--cc:#e0457a">
+      <div class="cc-top">
+        <div class="cc-icon">🧩</div>
+        <div class="cc-count-area">
+          <div class="cc-count">16</div>
+          <div class="cc-count-label">개 단어</div>
+        </div>
+      </div>
+      <div class="cc-names">
+        <div class="cc-name">객체 지향</div>
+        <div class="cc-name-en">OOP</div>
+      </div>
+      <div class="cc-desc">현실 세계를 코드로 표현하는 방법이에요. 클래스, 객체, 상속, 인터페이스를 배워요.</div>
+      <div class="cc-preview">
+        <span class="cc-word-chip">class</span>
+        <span class="cc-word-chip">object</span>
+        <span class="cc-word-chip">inherit</span>
+        <span class="cc-word-chip">method</span>
+        <span class="cc-word-more">+12 더</span>
+      </div>
+      <div class="cc-footer">
+        <div class="cc-diff">
+          <span class="cc-diff-label">난이도</span>
+          <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot on"></div>
+        </div>
+        <span class="cc-link">탐색하기 →</span>
+      </div>
+    </a>
+
+    <a href="02-word-list-light.html" class="cat-card" style="--cc:#c08800">
+      <div class="cc-top">
+        <div class="cc-icon">🌐</div>
+        <div class="cc-count-area">
+          <div class="cc-count">14</div>
+          <div class="cc-count-label">개 단어</div>
+        </div>
+      </div>
+      <div class="cc-names">
+        <div class="cc-name">웹 개발</div>
+        <div class="cc-name-en">Web Dev</div>
+      </div>
+      <div class="cc-desc">웹사이트와 서버를 만들 때 쓰는 단어들이에요. HTTP, API, DOM 등을 배워요.</div>
+      <div class="cc-preview">
+        <span class="cc-word-chip">request</span>
+        <span class="cc-word-chip">response</span>
+        <span class="cc-word-chip">render</span>
+        <span class="cc-word-chip">API</span>
+        <span class="cc-word-more">+10 더</span>
+      </div>
+      <div class="cc-footer">
+        <div class="cc-diff">
+          <span class="cc-diff-label">난이도</span>
+          <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot"></div>
+        </div>
+        <span class="cc-link">탐색하기 →</span>
+      </div>
+    </a>
+
+    <a href="02-word-list-light.html" class="cat-card" style="--cc:#d05c10">
+      <div class="cc-top">
+        <div class="cc-icon">🔁</div>
+        <div class="cc-count-area">
+          <div class="cc-count">20</div>
+          <div class="cc-count-label">개 단어</div>
+        </div>
+      </div>
+      <div class="cc-names">
+        <div class="cc-name">알고리즘</div>
+        <div class="cc-name-en">Algorithms</div>
+      </div>
+      <div class="cc-desc">문제를 효율적으로 해결하는 방법이에요. 정렬, 탐색, 재귀, 시간복잡도를 배워요.</div>
+      <div class="cc-preview">
+        <span class="cc-word-chip">sort</span>
+        <span class="cc-word-chip">recursion</span>
+        <span class="cc-word-chip">iterate</span>
+        <span class="cc-word-chip">stack</span>
+        <span class="cc-word-more">+16 더</span>
+      </div>
+      <div class="cc-footer">
+        <div class="cc-diff">
+          <span class="cc-diff-label">난이도</span>
+          <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot on"></div>
+        </div>
+        <span class="cc-link">탐색하기 →</span>
+      </div>
+    </a>
+
+    <a href="02-word-list-light.html" class="cat-card" style="--cc:#1a9e50">
+      <div class="cc-top">
+        <div class="cc-icon">🗄️</div>
+        <div class="cc-count-area">
+          <div class="cc-count">15</div>
+          <div class="cc-count-label">개 단어</div>
+        </div>
+      </div>
+      <div class="cc-names">
+        <div class="cc-name">데이터베이스</div>
+        <div class="cc-name-en">Database</div>
+      </div>
+      <div class="cc-desc">데이터를 저장하고 관리하는 방법이에요. 쿼리, 테이블, 인덱스, 트랜잭션을 배워요.</div>
+      <div class="cc-preview">
+        <span class="cc-word-chip">query</span>
+        <span class="cc-word-chip">index</span>
+        <span class="cc-word-chip">schema</span>
+        <span class="cc-word-chip">join</span>
+        <span class="cc-word-more">+11 더</span>
+      </div>
+      <div class="cc-footer">
+        <div class="cc-diff">
+          <span class="cc-diff-label">난이도</span>
+          <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot"></div>
+        </div>
+        <span class="cc-link">탐색하기 →</span>
+      </div>
+    </a>
+
+    <a href="02-word-list-light.html" class="cat-card" style="--cc:#c0246c">
+      <div class="cc-top">
+        <div class="cc-icon">🔒</div>
+        <div class="cc-count-area">
+          <div class="cc-count">11</div>
+          <div class="cc-count-label">개 단어</div>
+        </div>
+      </div>
+      <div class="cc-names">
+        <div class="cc-name">보안</div>
+        <div class="cc-name-en">Security</div>
+      </div>
+      <div class="cc-desc">소프트웨어를 안전하게 만드는 방법이에요. 인증, 암호화, 취약점을 배워요.</div>
+      <div class="cc-preview">
+        <span class="cc-word-chip">encrypt</span>
+        <span class="cc-word-chip">token</span>
+        <span class="cc-word-chip">hash</span>
+        <span class="cc-word-chip">auth</span>
+        <span class="cc-word-more">+7 더</span>
+      </div>
+      <div class="cc-footer">
+        <div class="cc-diff">
+          <span class="cc-diff-label">난이도</span>
+          <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot on"></div>
+        </div>
+        <span class="cc-link">탐색하기 →</span>
+      </div>
+    </a>
+
+    <a href="02-word-list-light.html" class="cat-card" style="--cc:#0080c0">
+      <div class="cc-top">
+        <div class="cc-icon">☁️</div>
+        <div class="cc-count-area">
+          <div class="cc-count">12</div>
+          <div class="cc-count-label">개 단어</div>
+        </div>
+      </div>
+      <div class="cc-names">
+        <div class="cc-name">클라우드 / DevOps</div>
+        <div class="cc-name-en">Cloud & DevOps</div>
+      </div>
+      <div class="cc-desc">서비스를 배포하고 운영하는 방법이에요. 컨테이너, CI/CD, 인프라를 배워요.</div>
+      <div class="cc-preview">
+        <span class="cc-word-chip">deploy</span>
+        <span class="cc-word-chip">container</span>
+        <span class="cc-word-chip">pipeline</span>
+        <span class="cc-word-chip">scale</span>
+        <span class="cc-word-more">+8 더</span>
+      </div>
+      <div class="cc-footer">
+        <div class="cc-diff">
+          <span class="cc-diff-label">난이도</span>
+          <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot on"></div>
+        </div>
+        <span class="cc-link">탐색하기 →</span>
+      </div>
+    </a>
+
+    <a href="02-word-list-light.html" class="cat-card" style="--cc:#7040c8">
+      <div class="cc-top">
+        <div class="cc-icon">🧪</div>
+        <div class="cc-count-area">
+          <div class="cc-count">9</div>
+          <div class="cc-count-label">개 단어</div>
+        </div>
+      </div>
+      <div class="cc-names">
+        <div class="cc-name">테스트</div>
+        <div class="cc-name-en">Testing</div>
+      </div>
+      <div class="cc-desc">코드가 올바르게 작동하는지 확인하는 방법이에요. 단위 테스트, 모킹, 디버깅을 배워요.</div>
+      <div class="cc-preview">
+        <span class="cc-word-chip">assert</span>
+        <span class="cc-word-chip">mock</span>
+        <span class="cc-word-chip">debug</span>
+        <span class="cc-word-chip">fixture</span>
+        <span class="cc-word-more">+5 더</span>
+      </div>
+      <div class="cc-footer">
+        <div class="cc-diff">
+          <span class="cc-diff-label">난이도</span>
+          <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot"></div>
+        </div>
+        <span class="cc-link">탐색하기 →</span>
+      </div>
+    </a>
+
+    <a href="02-word-list-light.html" class="cat-card" style="--cc:#b84800">
+      <div class="cc-top">
+        <div class="cc-icon">🏗️</div>
+        <div class="cc-count-area">
+          <div class="cc-count">13</div>
+          <div class="cc-count-label">개 단어</div>
+        </div>
+      </div>
+      <div class="cc-names">
+        <div class="cc-name">디자인 패턴</div>
+        <div class="cc-name-en">Design Patterns</div>
+      </div>
+      <div class="cc-desc">코드를 더 잘 구조화하는 방법이에요. 싱글톤, 팩토리, 옵저버 패턴을 배워요.</div>
+      <div class="cc-preview">
+        <span class="cc-word-chip">singleton</span>
+        <span class="cc-word-chip">factory</span>
+        <span class="cc-word-chip">observer</span>
+        <span class="cc-word-chip">facade</span>
+        <span class="cc-word-more">+9 더</span>
+      </div>
+      <div class="cc-footer">
+        <div class="cc-diff">
+          <span class="cc-diff-label">난이도</span>
+          <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot on"></div>
+        </div>
+        <span class="cc-link">탐색하기 →</span>
+      </div>
+    </a>
+
+    <a href="02-word-list-light.html" class="cat-card" style="--cc:#0090a0">
+      <div class="cc-top">
+        <div class="cc-icon">🖧</div>
+        <div class="cc-count-area">
+          <div class="cc-count">10</div>
+          <div class="cc-count-label">개 단어</div>
+        </div>
+      </div>
+      <div class="cc-names">
+        <div class="cc-name">네트워크</div>
+        <div class="cc-name-en">Networking</div>
+      </div>
+      <div class="cc-desc">컴퓨터가 서로 통신하는 방법이에요. 프로토콜, 소켓, DNS, TCP/IP를 배워요.</div>
+      <div class="cc-preview">
+        <span class="cc-word-chip">protocol</span>
+        <span class="cc-word-chip">socket</span>
+        <span class="cc-word-chip">latency</span>
+        <span class="cc-word-chip">packet</span>
+        <span class="cc-word-more">+6 더</span>
+      </div>
+      <div class="cc-footer">
+        <div class="cc-diff">
+          <span class="cc-diff-label">난이도</span>
+          <div class="diff-dot on"></div><div class="diff-dot on"></div><div class="diff-dot on"></div>
+        </div>
+        <span class="cc-link">탐색하기 →</span>
+      </div>
+    </a>
+
+    <a href="02-word-list-light.html" class="cat-card" style="--cc:#3a78c0">
+      <div class="cc-top">
+        <div class="cc-icon">📦</div>
+        <div class="cc-count-area">
+          <div class="cc-count">22</div>
+          <div class="cc-count-label">개 단어</div>
+        </div>
+      </div>
+      <div class="cc-names">
+        <div class="cc-name">일반 / 기타</div>
+        <div class="cc-name-en">General</div>
+      </div>
+      <div class="cc-desc">여러 분야에 걸쳐 자주 쓰이는 코딩 영어 단어들을 모았어요.</div>
+      <div class="cc-preview">
+        <span class="cc-word-chip">compile</span>
+        <span class="cc-word-chip">runtime</span>
+        <span class="cc-word-chip">cache</span>
+        <span class="cc-word-chip">async</span>
+        <span class="cc-word-more">+18 더</span>
+      </div>
+      <div class="cc-footer">
+        <div class="cc-diff">
+          <span class="cc-diff-label">난이도</span>
+          <div class="diff-dot on"></div><div class="diff-dot"></div><div class="diff-dot"></div>
+        </div>
+        <span class="cc-link">탐색하기 →</span>
+      </div>
+    </a>
+
+  </div><!-- /cat-grid -->
+
+  <!-- EXPLORE BANNER -->
+  <div class="explore-wrap">
+    <div class="explore-banner">
+      <div class="explore-text">
+        <div class="explore-title">🔍 카테고리 없이 전체 탐색</div>
+        <div class="explore-desc">
+          난이도·프로그래밍 언어·검색어로 원하는 단어를 바로 찾을 수 있어요.
+          모든 카테고리의 단어를 한 화면에서 확인하세요.
+        </div>
+      </div>
+      <a href="02-word-list-light.html" class="explore-btn">전체 단어 목록 →</a>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 <a href="01-home-light.html">Coding Voca</a> — 코딩 초보를 위한 영어 단어장 💜</p>
+  </footer>
+
+</body>
+</html>

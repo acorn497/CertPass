@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>variable — Coding Voca</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-base:       #080812;
+      --bg-card:       #13132b;
+      --bg-elevated:   #1c1c38;
+      --bg-code:       #0d0d20;
+      --border-subtle: rgba(255,255,255,0.06);
+      --border-medium: rgba(255,255,255,0.11);
+      --text-primary:  #eaeaf6;
+      --text-secondary:#8080a8;
+      --text-muted:    #40405a;
+      --purple:        #7c5cfc;
+      --purple-light:  #a386ff;
+      --purple-dim:    rgba(124,92,252,0.18);
+      --purple-glow:   rgba(124,92,252,0.3);
+      --mint:          #00d4aa;
+      --mint-dim:      rgba(0,212,170,0.14);
+      --mint-glow:     rgba(0,212,170,0.28);
+      --pink:          #ff7eb3;
+      --pink-dim:      rgba(255,126,179,0.14);
+      --pink-glow:     rgba(255,126,179,0.28);
+      --gold:          #ffd166;
+      --radius-sm:     10px;
+      --radius-md:     18px;
+      --radius-lg:     26px;
+      --radius-xl:     36px;
+    }
+
+    html {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+    }
+    body {
+      background-color: var(--bg-base);
+      background-image:
+        radial-gradient(ellipse 60% 50% at 30% 20%, rgba(255,126,179,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 70% 70%, rgba(0,212,170,0.07) 0%, transparent 60%),
+        radial-gradient(circle, rgba(255,255,255,0.022) 1px, transparent 1px);
+      background-size: auto, auto, 28px 28px;
+    }
+
+    /* ─── NAVBAR ─────────────────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px;
+      background: rgba(8,8,18,0.85);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; color: inherit;
+    }
+    .nav-logo-mark {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--purple), var(--mint));
+      display: flex; align-items: center; justify-content: center; font-size: 17px;
+    }
+    .nav-logo-name {
+      font-family: 'Bebas Neue', sans-serif; font-size: 20px;
+      letter-spacing: 3px; line-height: 1;
+    }
+    .nav-logo-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; }
+    .nav-links { display: flex; align-items: center; gap: 36px; }
+    .nav-link {
+      font-size: 14px; font-weight: 500;
+      color: var(--text-secondary); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-link:hover { color: var(--text-primary); }
+
+    /* ─── WRAPPER ────────────────────────────────────────────── */
+    .wrapper {
+      max-width: 900px; margin: 0 auto;
+      padding: 88px 48px 80px;
+    }
+
+    /* ─── BREADCRUMB ─────────────────────────────────────────── */
+    .breadcrumb {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 28px; font-size: 13px;
+      animation: fadeUp 0.4s ease both;
+    }
+    .breadcrumb a {
+      color: var(--text-muted); text-decoration: none;
+      transition: color 0.2s;
+    }
+    .breadcrumb a:hover { color: var(--purple-light); }
+    .breadcrumb-sep { color: var(--text-muted); }
+    .breadcrumb-current { color: var(--text-secondary); }
+
+    /* ─── WORD HERO ──────────────────────────────────────────── */
+    .word-hero {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 40px 48px;
+      margin-bottom: 24px;
+      position: relative; overflow: hidden;
+      animation: fadeUp 0.5s 0.05s ease both;
+    }
+    /* Top gradient strip */
+    .word-hero::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--pink), var(--purple), var(--mint));
+    }
+    /* Background glow orbs */
+    .word-hero::after {
+      content: '';
+      position: absolute; top: -60px; right: -60px;
+      width: 280px; height: 280px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(124,92,252,0.12), transparent 70%);
+      pointer-events: none;
+    }
+
+    .word-hero-top {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 24px; flex-wrap: wrap; position: relative; z-index: 1;
+    }
+    .word-main { display: flex; flex-direction: column; gap: 12px; }
+    .word-en {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 80px; letter-spacing: 4px; line-height: 1;
+      background: linear-gradient(135deg, #fff 30%, var(--purple-light) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .word-pronunc {
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    }
+    .pronunc-kr {
+      font-size: 20px; font-weight: 700; color: var(--text-secondary);
+    }
+    .pronunc-ipa {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px; color: var(--text-muted);
+      padding: 3px 10px; background: var(--bg-elevated);
+      border-radius: 6px; border: 1px solid var(--border-subtle);
+    }
+    .word-hero-badges {
+      display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 16px; border-radius: 100px;
+      font-size: 13px; font-weight: 700;
+    }
+    .badge-cat {
+      background: var(--purple-dim); color: var(--purple-light);
+      border: 1px solid rgba(124,92,252,0.35);
+    }
+    .badge-diff {
+      background: rgba(255,209,102,0.12); color: var(--gold);
+      border: 1px solid rgba(255,209,102,0.3);
+    }
+
+    /* ─── COMPARISON PANELS ──────────────────────────────────── */
+    .comparison {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 20px; margin-bottom: 24px;
+    }
+
+    /* Shared panel base */
+    .panel {
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      display: flex; flex-direction: column; gap: 18px;
+      position: relative; overflow: hidden;
+      animation: fadeUp 0.5s ease both;
+    }
+    .panel-ev  {
+      background: linear-gradient(145deg, rgba(255,126,179,0.1) 0%, var(--bg-card) 60%);
+      border: 1px solid rgba(255,126,179,0.2);
+      animation-delay: 0.1s;
+    }
+    .panel-cod {
+      background: linear-gradient(145deg, rgba(0,212,170,0.1) 0%, var(--bg-card) 60%);
+      border: 1px solid rgba(0,212,170,0.2);
+      animation-delay: 0.15s;
+    }
+    .panel-ev::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: var(--pink);
+      box-shadow: 0 0 12px var(--pink-glow);
+    }
+    .panel-cod::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: var(--mint);
+      box-shadow: 0 0 12px var(--mint-glow);
+    }
+
+    .panel-header {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .panel-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .panel-ev  .panel-dot { background: var(--pink); box-shadow: 0 0 10px var(--pink); }
+    .panel-cod .panel-dot { background: var(--mint); box-shadow: 0 0 10px var(--mint); }
+
+    .panel-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
+    }
+    .panel-ev  .panel-label { color: var(--pink); }
+    .panel-cod .panel-label { color: var(--mint); }
+
+    .panel-emoji { font-size: 32px; }
+
+    .panel-meaning {
+      font-size: 22px; font-weight: 800; line-height: 1.3;
+    }
+
+    .panel-divider {
+      height: 1px; background: var(--border-subtle);
+    }
+
+    .panel-example { display: flex; flex-direction: column; gap: 8px; }
+    .example-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .example-en {
+      font-size: 14px; font-style: italic; color: var(--text-muted);
+      line-height: 1.65;
+    }
+    .example-kr {
+      font-size: 15px; color: var(--text-secondary); line-height: 1.65;
+    }
+
+    /* ─── BRIDGE ─────────────────────────────────────────────── */
+    .comparison-bridge {
+      text-align: center; padding: 4px 0 16px;
+      font-size: 13px; color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+    }
+    .bridge-line {
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border-medium), transparent);
+    }
+    .bridge-text { white-space: nowrap; }
+
+    /* ─── CODE BLOCK ─────────────────────────────────────────── */
+    .code-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden; margin-bottom: 24px;
+      animation: fadeUp 0.5s 0.2s ease both;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(0,0,0,0.25);
+    }
+    .code-header-left { display: flex; align-items: center; gap: 10px; }
+    .code-dots { display: flex; gap: 6px; }
+    .code-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+    }
+    .code-dot-r { background: #ff5f57; }
+    .code-dot-y { background: #ffbd2e; }
+    .code-dot-g { background: #28c840; }
+    .code-lang-tag {
+      font-family: 'JetBrains Mono', monospace; font-size: 12px;
+      padding: 2px 10px; border-radius: 6px;
+      background: var(--mint-dim); color: var(--mint);
+      border: 1px solid rgba(0,212,170,0.25);
+    }
+    .code-copy-btn {
+      font-size: 12px; color: var(--text-muted); background: transparent;
+      border: 1px solid var(--border-subtle); padding: 4px 12px;
+      border-radius: 6px; cursor: pointer; font-family: 'JetBrains Mono', monospace;
+      transition: all 0.2s;
+    }
+    .code-copy-btn:hover { border-color: var(--mint); color: var(--mint); }
+
+    .code-body {
+      background: var(--bg-code);
+      padding: 24px 28px;
+      overflow-x: auto;
+    }
+    pre {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px; line-height: 1.85;
+      tab-size: 4;
+    }
+    /* Syntax colors */
+    .kw  { color: #bd93f9; }   /* keyword / purple */
+    .str { color: #f1fa8c; }   /* string / yellow */
+    .num { color: #ff79c6; }   /* number / pink */
+    .cm  { color: #44445e; font-style: italic; }  /* comment */
+    .fn  { color: #50fa7b; }   /* function / green */
+    .op  { color: #8080a8; }   /* operator */
+    .var { color: var(--mint); } /* variable / mint */
+    .cls { color: var(--gold); } /* class name / gold */
+
+    .code-explanation {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-subtle);
+      font-size: 14px; color: var(--text-secondary); line-height: 1.7;
+      background: rgba(0,212,170,0.03);
+    }
+    .code-explanation strong { color: var(--mint); }
+
+    /* ─── LANGUAGES & RELATED ────────────────────────────────── */
+    .meta-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 20px; margin-bottom: 24px;
+    }
+
+    .meta-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 22px 22px 18px;
+      animation: fadeUp 0.5s 0.25s ease both;
+    }
+    .meta-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .meta-card-title {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .meta-card-count {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      color: var(--text-muted);
+      padding: 2px 8px; border-radius: 100px;
+      background: var(--bg-elevated); border: 1px solid var(--border-subtle);
+    }
+
+    /*
+     * Scrollable chip container: when there are many languages or related words,
+     * the area scrolls horizontally (mobile) or wraps (desktop) without overflowing.
+     */
+    .langs-list {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      max-height: 140px;        /* ~3 rows of chips */
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-medium) transparent;
+    }
+    .langs-list::-webkit-scrollbar { width: 3px; height: 3px; }
+    .langs-list::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: 4px; }
+
+    .lang-chip {
+      display: flex; align-items: center; gap: 7px;
+      padding: 6px 14px; border-radius: 100px;
+      background: var(--bg-elevated); border: 1px solid var(--border-subtle);
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: all 0.2s; text-decoration: none; color: inherit;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .lang-chip:hover {
+      border-color: var(--purple); background: var(--purple-dim);
+      color: var(--purple-light);
+    }
+    .lang-chip-icon { font-size: 16px; }
+
+    .related-list {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      max-height: 140px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border-medium) transparent;
+    }
+    .related-list::-webkit-scrollbar { width: 3px; }
+    .related-list::-webkit-scrollbar-thumb { background: var(--border-medium); border-radius: 4px; }
+
+    .related-chip {
+      display: flex; align-items: center; gap: 5px;
+      padding: 6px 14px; border-radius: 100px;
+      background: var(--bg-elevated); border: 1px solid var(--border-subtle);
+      font-size: 13px; font-weight: 600;
+      cursor: pointer; text-decoration: none; color: inherit;
+      transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
+    }
+    .related-chip:hover {
+      border-color: var(--purple); background: var(--purple-dim);
+      color: var(--purple-light); transform: translateY(-2px);
+    }
+    .related-chip-en {
+      font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    }
+    .related-chip-kr { font-size: 11px; color: var(--text-muted); }
+
+    /* ─── TAGS ───────────────────────────────────────────────── */
+    .tags-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+      animation: fadeUp 0.5s 0.3s ease both;
+    }
+    .tags-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .tag {
+      padding: 4px 12px; border-radius: 100px;
+      background: var(--bg-elevated); border: 1px solid var(--border-subtle);
+      font-size: 13px; color: var(--text-secondary); cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tag:hover { border-color: var(--purple); color: var(--purple-light); }
+
+    /* ─── NAV ARROWS ─────────────────────────────────────────── */
+    .word-nav {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      animation: fadeUp 0.5s 0.35s ease both;
+    }
+    .word-nav-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      text-decoration: none; color: inherit;
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .word-nav-btn:hover { border-color: var(--purple); transform: translateX(-3px); }
+    .word-nav-btn.next { justify-content: flex-end; flex-direction: row-reverse; }
+    .word-nav-btn.next:hover { transform: translateX(3px); }
+    .word-nav-direction {
+      font-size: 24px; color: var(--text-muted);
+    }
+    .word-nav-info { display: flex; flex-direction: column; gap: 3px; }
+    .word-nav-hint { font-size: 11px; color: var(--text-muted); }
+    .word-nav-word {
+      font-family: 'JetBrains Mono', monospace; font-size: 15px;
+      font-weight: 600; color: var(--purple-light);
+    }
+
+    footer {
+      max-width: 900px; margin: 40px auto 0;
+      padding: 32px 48px;
+      text-align: center;
+      border-top: 1px solid var(--border-subtle);
+      color: var(--text-muted); font-size: 13px;
+    }
+    footer a { color: var(--purple-light); text-decoration: none; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── QUIZ TEASER ────────────────────────────────────────── */
+    .quiz-teaser {
+      background: linear-gradient(135deg, var(--purple-dim), rgba(0,212,170,0.08));
+      border: 1px solid rgba(124,92,252,0.3);
+      border-radius: var(--radius-md);
+      padding: 24px 28px;
+      display: flex; align-items: center; justify-content: space-between; gap: 20px;
+      margin-bottom: 24px;
+      animation: fadeUp 0.5s 0.28s ease both;
+    }
+    .quiz-teaser-text { display: flex; flex-direction: column; gap: 4px; }
+    .quiz-teaser-title { font-size: 16px; font-weight: 700; }
+    .quiz-teaser-sub { font-size: 13px; color: var(--text-secondary); }
+    .quiz-btn {
+      padding: 10px 24px; border-radius: 100px;
+      background: var(--purple); border: none; color: #fff;
+      font-size: 14px; font-weight: 700;
+      cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .quiz-btn:hover { background: var(--purple-light); transform: scale(1.03); }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <a href="01-home.html" class="nav-logo">
+      <div class="nav-logo-mark">💻</div>
+      <div>
+        <div class="nav-logo-name">CODING VOCA</div>
+        <div class="nav-logo-sub">코딩 영어 단어장</div>
+      </div>
+    </a>
+    <div class="nav-links">
+      <a href="02-word-list.html" class="nav-link">단어 목록</a>
+      <a href="04-categories.html" class="nav-link">카테고리</a>
+      <a href="#" class="nav-link">언어별</a>
+      <a href="#" class="nav-link">소개</a>
+    </div>
+  </nav>
+
+  <div class="wrapper">
+
+    <!-- BREADCRUMB -->
+    <div class="breadcrumb">
+      <a href="01-home.html">홈</a>
+      <span class="breadcrumb-sep">›</span>
+      <a href="02-word-list.html">단어 목록</a>
+      <span class="breadcrumb-sep">›</span>
+      <a href="04-categories.html">⌨️ 기초 문법</a>
+      <span class="breadcrumb-sep">›</span>
+      <span class="breadcrumb-current">variable</span>
+    </div>
+
+    <!-- WORD HERO -->
+    <div class="word-hero">
+      <div class="word-hero-top">
+        <div class="word-main">
+          <div class="word-en">variable</div>
+          <div class="word-pronunc">
+            <span class="pronunc-kr">🗣️ 배리어블</span>
+            <span class="pronunc-ipa">/ˈvɛr.i.ə.bəl/</span>
+          </div>
+        </div>
+        <div class="word-hero-badges">
+          <span class="badge badge-cat">⌨️ 기초 문법</span>
+          <span class="badge badge-diff">⭐ 초급</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPARISON PANELS -->
+    <div class="comparison">
+
+      <!-- Everyday panel -->
+      <div class="panel panel-ev">
+        <div class="panel-header">
+          <span class="panel-dot"></span>
+          <span class="panel-label">🌍 일상에서는</span>
+        </div>
+        <div class="panel-emoji">🌦️</div>
+        <div class="panel-meaning">변하기 쉬운,<br>가변적인</div>
+        <div class="panel-divider"></div>
+        <div class="panel-example">
+          <div class="example-label">예문</div>
+          <div class="example-en">"The weather is very variable today."</div>
+          <div class="example-kr">오늘 날씨가 매우 변덕스럽다.</div>
+        </div>
+      </div>
+
+      <!-- Coding panel -->
+      <div class="panel panel-cod">
+        <div class="panel-header">
+          <span class="panel-dot"></span>
+          <span class="panel-label">💻 코딩에서는</span>
+        </div>
+        <div class="panel-emoji">📦</div>
+        <div class="panel-meaning">변수 —<br>값을 저장하는 공간</div>
+        <div class="panel-divider"></div>
+        <div class="panel-example">
+          <div class="example-label">설명</div>
+          <div class="example-kr">
+            이름표가 붙은 상자처럼, 숫자·이름·참거짓 같은 데이터를 담아두는 공간이에요.
+            프로그램이 실행되는 동안 값이 바뀔 수 있어요.
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /comparison -->
+
+    <!-- Bridge text -->
+    <div class="comparison-bridge">
+      <div class="bridge-line"></div>
+      <span class="bridge-text">💡 일상의 "변하는 것" = 코딩의 "변하는 값"</span>
+      <div class="bridge-line"></div>
+    </div>
+
+    <!-- CODE BLOCK -->
+    <div class="code-section">
+      <div class="code-header">
+        <div class="code-header-left">
+          <div class="code-dots">
+            <div class="code-dot code-dot-r"></div>
+            <div class="code-dot code-dot-y"></div>
+            <div class="code-dot code-dot-g"></div>
+          </div>
+          <span class="code-lang-tag">🐍 Python</span>
+        </div>
+        <button class="code-copy-btn">copy</button>
+      </div>
+      <div class="code-body">
+        <pre><span class="cm"># 변수를 만들고 값을 저장하기</span>
+<span class="var">name</span> <span class="op">=</span> <span class="str">"홍길동"</span>         <span class="cm"># 이름을 담는 변수</span>
+<span class="var">age</span>  <span class="op">=</span> <span class="num">15</span>             <span class="cm"># 나이를 담는 변수</span>
+<span class="var">is_student</span> <span class="op">=</span> <span class="kw">True</span>    <span class="cm"># 학생인지 나타내는 변수</span>
+
+<span class="cm"># 변수 값은 나중에 바꿀 수 있어요</span>
+<span class="var">age</span> <span class="op">=</span> <span class="num">16</span>              <span class="cm"># 한 살 더 먹었어요!</span>
+
+<span class="fn">print</span>(<span class="var">name</span>, <span class="str">"은"</span>, <span class="var">age</span>, <span class="str">"살"</span>)
+<span class="cm"># 출력: 홍길동 은 16 살</span></pre>
+      </div>
+      <div class="code-explanation">
+        <strong>name</strong>, <strong>age</strong>, <strong>is_student</strong> 모두 변수(variable)예요.
+        각각 문자열(string), 숫자(integer), 참거짓(boolean) 값을 저장하고 있어요.
+        <code style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--mint);background:var(--mint-dim);padding:1px 6px;border-radius:4px">age = 16</code>처럼 같은 변수에 새 값을 넣으면 이전 값은 사라져요.
+      </div>
+    </div>
+
+    <!-- LANGUAGES & RELATED WORDS
+         Both lists use max-height + overflow-y: auto to handle
+         10+ languages or 10+ related words without layout breaks. -->
+    <div class="meta-row">
+      <div class="meta-card">
+        <div class="meta-card-header">
+          <div class="meta-card-title">🏷️ 관련 프로그래밍 언어</div>
+          <span class="meta-card-count">8개</span>
+        </div>
+        <div class="langs-list">
+          <a href="#" class="lang-chip"><span class="lang-chip-icon">🐍</span><span>Python</span></a>
+          <a href="#" class="lang-chip"><span class="lang-chip-icon">⚡</span><span>JavaScript</span></a>
+          <a href="#" class="lang-chip"><span class="lang-chip-icon">📘</span><span>TypeScript</span></a>
+          <a href="#" class="lang-chip"><span class="lang-chip-icon">☕</span><span>Java</span></a>
+          <a href="#" class="lang-chip"><span class="lang-chip-icon">🔵</span><span>C#</span></a>
+          <a href="#" class="lang-chip"><span class="lang-chip-icon">🐹</span><span>Go</span></a>
+          <a href="#" class="lang-chip"><span class="lang-chip-icon">🍎</span><span>Swift</span></a>
+          <a href="#" class="lang-chip"><span class="lang-chip-icon">🤖</span><span>Kotlin</span></a>
+        </div>
+      </div>
+
+      <div class="meta-card">
+        <div class="meta-card-header">
+          <div class="meta-card-title">🔗 관련 단어</div>
+          <span class="meta-card-count">6개</span>
+        </div>
+        <div class="related-list">
+          <a href="#" class="related-chip">
+            <span class="related-chip-en">constant</span>
+            <span class="related-chip-kr">상수</span>
+          </a>
+          <a href="#" class="related-chip">
+            <span class="related-chip-en">assign</span>
+            <span class="related-chip-kr">할당</span>
+          </a>
+          <a href="#" class="related-chip">
+            <span class="related-chip-en">type</span>
+            <span class="related-chip-kr">타입</span>
+          </a>
+          <a href="#" class="related-chip">
+            <span class="related-chip-en">scope</span>
+            <span class="related-chip-kr">범위</span>
+          </a>
+          <a href="#" class="related-chip">
+            <span class="related-chip-en">declare</span>
+            <span class="related-chip-kr">선언</span>
+          </a>
+          <a href="#" class="related-chip">
+            <span class="related-chip-en">mutable</span>
+            <span class="related-chip-kr">가변</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAGS -->
+    <div class="tags-section">
+      <span class="tags-label">🏷️ 태그</span>
+      <span class="tag"># 기초</span>
+      <span class="tag"># 필수</span>
+      <span class="tag"># 자료형</span>
+      <span class="tag"># 메모리</span>
+    </div>
+
+    <!-- QUIZ TEASER -->
+    <div class="quiz-teaser">
+      <div class="quiz-teaser-text">
+        <div class="quiz-teaser-title">🎮 이 단어 확실히 이해했나요?</div>
+        <div class="quiz-teaser-sub">퀴즈를 풀어서 실력을 테스트해보세요!</div>
+      </div>
+      <button class="quiz-btn">퀴즈 풀기 →</button>
+    </div>
+
+    <!-- PREV / NEXT NAVIGATION -->
+    <div class="word-nav">
+      <a href="#" class="word-nav-btn prev">
+        <span class="word-nav-direction">←</span>
+        <div class="word-nav-info">
+          <span class="word-nav-hint">이전 단어</span>
+          <span class="word-nav-word">undefined</span>
+        </div>
+      </a>
+      <a href="#" class="word-nav-btn next">
+        <span class="word-nav-direction">→</span>
+        <div class="word-nav-info" style="text-align:right">
+          <span class="word-nav-hint">다음 단어</span>
+          <span class="word-nav-word">function</span>
+        </div>
+      </a>
+    </div>
+
+  </div><!-- /wrapper -->
+
+  <footer>
+    <p>© 2025 <a href="01-home.html">Coding Voca</a> — 코딩 초보를 위한 영어 단어장 💜</p>
+  </footer>
+
+</body>
+</html>
