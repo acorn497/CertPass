@@ -1,0 +1,23 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - p3_server_mongo:/data/db
+
+  server:
+    build:
+      context: .
+    env_file:
+      - .env.example
+    environment:
+      MONGODB_URI: mongodb://mongo:27017/p3_learning
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+
+volumes:
+  p3_server_mongo:
