@@ -289,6 +289,51 @@ async function seed() {
       status: 'approved',
       totalDuration: 36000,
     },
+    {
+      title: 'SQLD 자격증 한 번에 합격하기',
+      description: '데이터 모델링부터 SQL 활용까지, SQLD 합격에 필요한 모든 것을 담은 유료 강의',
+      thumbnail:
+        'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=800&h=450&fit=crop&auto=format&q=80',
+      instructor: '김정보',
+      instructor_id: instructor._id,
+      category_id: itCategory._id,
+      examName: 'SQLD',
+      level: 'intermediate',
+      price: 39000,
+      isPublished: true,
+      status: 'approved',
+      totalDuration: 50400,
+    },
+    {
+      title: 'ADsP 데이터분석 준전문가 완성',
+      description: '데이터 분석 기획과 통계 기초를 체계적으로 정리한 ADsP 대비 프리미엄 강의',
+      thumbnail:
+        'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=450&fit=crop&auto=format&q=80',
+      instructor: '김정보',
+      instructor_id: instructor._id,
+      category_id: itCategory._id,
+      examName: 'ADsP',
+      level: 'beginner',
+      price: 55000,
+      isPublished: true,
+      status: 'approved',
+      totalDuration: 46800,
+    },
+    {
+      title: '토익 스피킹 레벨7 집중반',
+      description: '실전 답변 템플릿과 모범 답안으로 토익 스피킹 고득점을 노리는 유료 집중 과정',
+      thumbnail:
+        'https://images.unsplash.com/photo-1573497620053-ea5300f94f21?w=800&h=450&fit=crop&auto=format&q=80',
+      instructor: '박영어',
+      instructor_id: instructor._id,
+      category_id: languageCategory._id,
+      examName: '토익스피킹',
+      level: 'advanced',
+      price: 69000,
+      isPublished: true,
+      status: 'approved',
+      totalDuration: 32400,
+    },
   ]);
 
   const ipcCourse = courses[0];
