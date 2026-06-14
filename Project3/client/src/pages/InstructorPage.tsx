@@ -73,6 +73,10 @@ export function InstructorPage() {
       instructorApi.updateCourse(courseId, { price }),
     onSuccess: refreshCourses,
   });
+  const resubmitMutation = useMutation({
+    mutationFn: (courseId: string) => instructorApi.resubmitCourse(courseId),
+    onSuccess: refreshCourses,
+  });
   const updateSectionMutation = useMutation({
     mutationFn: ({ courseId, sectionId, title }: { courseId: string; sectionId: string; title: string }) =>
       instructorApi.updateSection(courseId, sectionId, { title }),
@@ -186,9 +190,38 @@ export function InstructorPage() {
           <div key={course._id} className="bg-white border border-slate-200 rounded-2xl p-5">
             <div className="flex items-center justify-between gap-3">
               <h3 className="font-semibold text-slate-900">{course.title}</h3>
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">{course.status}</span>
+              <span
+                className={`rounded-full px-3 py-1 text-xs font-medium ${
+                  course.status === 'approved'
+                    ? 'bg-emerald-50 text-emerald-700'
+                    : course.status === 'rejected'
+                      ? 'bg-rose-50 text-rose-700'
+                      : 'bg-amber-50 text-amber-700'
+                }`}
+              >
+                {course.status === 'approved'
+                  ? '승인됨'
+                  : course.status === 'rejected'
+                    ? '반려됨'
+                    : '승인 대기'}
+              </span>
             </div>
             <p className="mt-2 text-sm text-slate-500">{course.examName}</p>
+
+            {course.status === 'rejected' && (
+              <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-rose-100 bg-rose-50 px-3 py-2.5">
+                <p className="text-xs text-rose-700">
+                  관리자에게 반려된 강의입니다. 내용을 수정한 뒤 다시 신청할 수 있어요.
+                </p>
+                <button
+                  className="shrink-0 rounded-lg bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-50"
+                  disabled={resubmitMutation.isPending}
+                  onClick={() => resubmitMutation.mutate(course._id)}
+                >
+                  {resubmitMutation.isPending ? '신청 중...' : '다시 신청'}
+                </button>
+              </div>
+            )}
             <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-500">
               <span>수강생 {course.enrollmentCount ?? 0}</span>
               <span>★ {(course.avgRating ?? 0).toFixed(1)}</span>

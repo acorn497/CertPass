@@ -47,6 +47,13 @@ export function CourseCard({ course, isEnrolled }: Props) {
             {course.title}
           </h3>
           <p className="text-sm text-slate-500">{course.instructor}</p>
+          <p className="mt-2 text-base font-bold">
+            {course.price > 0 ? (
+              <span className="text-slate-900">{course.price.toLocaleString()}원</span>
+            ) : (
+              <span className="text-emerald-600">무료</span>
+            )}
+          </p>
           <div className="mt-3 flex items-center pt-3 border-t border-slate-100">
             <span className="text-xs text-slate-400">{course.examName}</span>
             <span className="ml-auto text-xs font-medium text-amber-600">

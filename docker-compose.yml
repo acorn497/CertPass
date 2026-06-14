@@ -15,6 +15,10 @@ services:
     environment:
       MONGODB_URI: mongodb://mongo:27017/p3_learning
       CLIENT_URL: http://localhost:5173
+      # TossPayments 공개 테스트 키 (https://developers.tosspayments.com/)
+      TOSS_CLIENT_KEY: test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm
+      TOSS_SECRET_KEY: test_gsk_docs_OaPz8L5KdmQXkzRz3y47BMw6
+      PAYMENT_CURRENCY: KRW
     ports:
       - "3000:3000"
     depends_on:

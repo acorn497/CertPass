@@ -86,8 +86,18 @@ export function CourseDetailPage() {
       }
 
       const checkoutUrl = checkout.checkoutUrl;
-      if (checkoutUrl) window.location.href = checkoutUrl;
-      else await requestTossPayment(checkout);
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
+        return;
+      }
+      try {
+        await requestTossPayment(checkout);
+      } catch (error) {
+        alert(error instanceof Error ? error.message : '결제창을 여는 중 오류가 발생했습니다');
+      }
+    },
+    onError: () => {
+      alert('결제 요청에 실패했습니다. 잠시 후 다시 시도해주세요.');
     },
   });
 

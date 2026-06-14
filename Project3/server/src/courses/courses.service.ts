@@ -191,6 +191,17 @@ export class CoursesService {
     return { message: '강의가 삭제되었습니다.' };
   }
 
+  async resubmit(userId: string, courseId: string, role: string) {
+    const course = await this.assertCourseOwnerOrAdmin(userId, courseId, role);
+    if (course.status !== 'rejected') {
+      throw new BadRequestException('반려된 강의만 다시 신청할 수 있습니다');
+    }
+    course.status = 'pending';
+    await course.save();
+    this.invalidateCourseCache(courseId);
+    return course;
+  }
+
   async updateStatus(courseId: string, status: 'pending' | 'approved' | 'rejected') {
     const course = await this.courseModel.findByIdAndUpdate(
       courseId,

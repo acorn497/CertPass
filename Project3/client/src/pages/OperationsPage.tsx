@@ -8,13 +8,21 @@ export function OperationsPage() {
   const [discordUrl, setDiscordUrl] = useState('');
   const [webhookUrl, setWebhookUrl] = useState('');
 
-  const { data: health } = useQuery({
+  const {
+    data: health,
+    dataUpdatedAt,
+    isFetching,
+  } = useQuery({
     queryKey: ['health'],
     queryFn: () => operationsApi.health().then((r) => r.data.data),
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
   });
   const { data: metrics } = useQuery({
     queryKey: ['metrics'],
     queryFn: () => operationsApi.metrics().then((r) => r.data.data),
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
   });
 
   const emailMutation = useMutation({
@@ -56,7 +64,18 @@ export function OperationsPage() {
 
       <div className="grid lg:grid-cols-2 gap-6">
         <section className="bg-white border border-slate-200 rounded-xl p-5">
-          <h2 className="font-semibold text-slate-900 mb-4">상태</h2>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-semibold text-slate-900">상태</h2>
+            <span className="inline-flex items-center gap-1.5 text-xs text-slate-500">
+              <span
+                className={`h-2 w-2 rounded-full ${isFetching ? 'animate-pulse bg-emerald-500' : 'bg-slate-300'}`}
+              />
+              {isFetching ? '갱신 중' : '5초마다 자동 갱신'}
+              {dataUpdatedAt
+                ? ` · ${new Date(dataUpdatedAt).toLocaleTimeString()}`
+                : ''}
+            </span>
+          </div>
           <pre className="overflow-auto rounded-lg bg-slate-950 p-4 text-xs text-slate-100">
             {JSON.stringify({ health, metrics }, null, 2)}
           </pre>

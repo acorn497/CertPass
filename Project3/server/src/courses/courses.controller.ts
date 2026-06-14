@@ -113,6 +113,17 @@ export class CoursesController {
     return { success: true, data };
   }
 
+  @Post(':courseId/resubmit')
+  @Roles('instructor', 'admin')
+  @UseGuards(JwtGuard, RolesGuard)
+  async resubmit(
+    @CurrentUser() user: { userId: string; role?: string },
+    @Param('courseId') courseId: string,
+  ) {
+    const data = await this.coursesService.resubmit(user.userId, courseId, user.role ?? '');
+    return { success: true, data };
+  }
+
   @Patch(':courseId/status')
   @Roles('admin')
   @UseGuards(JwtGuard, RolesGuard)

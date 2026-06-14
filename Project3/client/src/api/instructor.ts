@@ -24,6 +24,8 @@ export const instructorApi = {
       thumbnail: string | null;
     }>,
   ) => api.patch<ApiResponse<Course>>(`/courses/${courseId}`, data),
+  resubmitCourse: (courseId: string) =>
+    api.post<ApiResponse<Course>>(`/courses/${courseId}/resubmit`, {}),
   stats: (courseId: string) =>
     api.get<ApiResponse<unknown>>(`/instructor/courses/${courseId}/stats`),
   unansweredQna: () =>
